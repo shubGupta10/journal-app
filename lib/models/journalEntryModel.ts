@@ -5,7 +5,7 @@ export interface IJournalEntry extends Document {
     title?: string;
     content: string;
     tags: string[];
-    mood?: "neutral" | "productive" | "blocked" | "tired";
+    mood?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -38,7 +38,7 @@ const JournalEntrySchema: Schema<IJournalEntry> = new Schema(
 
         mood: {
             type: String,
-            enum: ["neutral", "productive", "blocked", "tired"],
+            trim: true,
             default: "neutral",
         },
     },
