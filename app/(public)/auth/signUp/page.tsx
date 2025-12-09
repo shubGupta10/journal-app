@@ -39,7 +39,7 @@ export default function SignUp() {
             callbackURL: '/login'
         } as any, {
             onSuccess: () => {
-                router.push('/login');
+                router.push('/auth/login');
             },
             onError: (ctx) => {
                 setLoading(false);
