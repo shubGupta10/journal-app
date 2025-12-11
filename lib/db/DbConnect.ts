@@ -20,7 +20,7 @@ export const connectDB = async () => {
     }
 
     await mongoose.connect(MONGODB_URI, {
-        dbName: "devjournal",
+        dbName: "journal-app",
     });
 
     isConnected = true;

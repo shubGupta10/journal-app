@@ -4,7 +4,7 @@ import clientPromise from "@/lib/db/mongoClient";
 import {username} from "better-auth/plugins";
 
 const client = await clientPromise;
-const db = client.db("journal-site");
+const db = client.db("journal-app");
 
 export const auth = betterAuth({
     database: mongodbAdapter(db),
