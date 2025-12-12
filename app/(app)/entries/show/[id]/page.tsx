@@ -75,13 +75,13 @@ export default function EntryShowPage() {
     }
 
     return (
-        <div className="max-w-3xl mx-auto w-full px-4 py-10">
+        <div className="max-w-6xl mx-auto w-full px-4 py-10 space-y-10">
 
             {/* TOP BAR */}
-            <div className="flex items-center justify-between mb-10">
+            <div className="flex items-center justify-between">
                 <Button
                     variant="outline"
-                    onClick={() => router.push("/dashboard")}
+                    onClick={() => router.back()}
                     className="hover:bg-muted"
                 >
                     ← Back
@@ -91,56 +91,62 @@ export default function EntryShowPage() {
                     <Button
                         variant="outline"
                         onClick={() => router.push(`/entries/edit/${id}`)}
+                        className="hover:bg-muted"
                     >
                         Edit
                     </Button>
 
-                    <DeleteEntryButton id={showEntry._id}
-                    />
+                    <DeleteEntryButton id={showEntry._id} />
                 </div>
             </div>
 
-            {/* TITLE */}
-            {showEntry.title && (
-                <h1 className="text-4xl font-bold tracking-tight mb-4">
-                    {showEntry.title}
-                </h1>
-            )}
+            {/* MAIN CONTENT WRAPPER */}
+            <div className="bg-card border border-border rounded-xl p-8 shadow-sm space-y-6">
 
-            {/* META INFO */}
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-8">
-                <span>Created: {formatDate(showEntry.createdAt)}</span>
-
-                {showEntry.mood && (
-                    <Badge className="bg-secondary text-secondary-foreground px-3 py-1">
-                        Mood: {showEntry.mood}
-                    </Badge>
+                {/* TITLE */}
+                {showEntry.title && (
+                    <h1 className="text-4xl font-semibold tracking-tight">
+                        {showEntry.title}
+                    </h1>
                 )}
-            </div>
 
-            {/* TAGS */}
-            {showEntry.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-8">
-                    {showEntry.tags.map((tag, idx) => (
-                        <Badge
-                            key={idx}
-                            className="border border-primary text-primary bg-primary/10 px-3 py-1"
-                        >
-                            #{tag}
+                {/* META INFO */}
+                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                    <span>Created: {formatDate(showEntry.createdAt)}</span>
+
+                    {showEntry.mood && (
+                        <Badge className="bg-secondary text-secondary-foreground px-3 py-1">
+                            {showEntry.mood}
                         </Badge>
-                    ))}
+                    )}
                 </div>
-            )}
 
-            {/* CONTENT — READING MODE */}
-            <div className="prose prose-lg max-w-none text-foreground leading-relaxed whitespace-pre-wrap">
-                {showEntry.content}
+                {/* TAGS */}
+                {showEntry.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                        {showEntry.tags.map((tag, idx) => (
+                            <Badge
+                                key={idx}
+                                className="border border-primary text-primary bg-primary/10 px-3 py-1"
+                            >
+                                #{tag}
+                            </Badge>
+                        ))}
+                    </div>
+                )}
+
+                {/* CONTENT */}
+                <div className="border-t border-border pt-6">
+                    <div className="prose prose-lg max-w-none text-foreground leading-relaxed whitespace-pre-wrap">
+                        {showEntry.content}
+                    </div>
+                </div>
+
+                {/* UPDATED AT */}
+                <p className="text-xs text-muted-foreground border-t border-border pt-4">
+                    Last updated: {formatDate(showEntry.updatedAt)}
+                </p>
             </div>
-
-            {/* UPDATED AT */}
-            <p className="text-xs text-muted-foreground mt-10">
-                Last updated: {formatDate(showEntry.updatedAt)}
-            </p>
         </div>
     );
 }

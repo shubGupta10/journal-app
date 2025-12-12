@@ -50,3 +50,25 @@ export const getRecentEntryById = cache(async (id: string) => {
         updatedAt: singleEntry.updatedAt.toISOString(),
     };
 })
+
+export const getALLEntries = cache(async () => {
+    const user = await currentUser();
+    await connectDB();
+
+    const entries = await JournalEntry.find({
+        userId: user?.id,
+    })
+        .sort({ createdAt: -1 })
+        .lean();
+
+    return entries.map(entry => ({
+        _id: entry._id.toString(),
+        userId: entry.userId.toString(),
+        title: entry.title,
+        content: entry.content,
+        tags: entry.tags,
+        mood: entry.mood,
+        createdAt: entry.createdAt.toISOString(),
+        updatedAt: entry.updatedAt.toISOString(),
+    }))
+})
