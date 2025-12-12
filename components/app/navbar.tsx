@@ -23,7 +23,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export default function Navbar() {
+export default function AppNavbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const { data: session } = authClient.useSession();
