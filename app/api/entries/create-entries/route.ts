@@ -2,6 +2,7 @@ import {NextResponse, NextRequest} from "next/server";
 import {IJournalEntry, JournalEntry} from "@/lib/models/journalEntryModel";
 import {connectDB} from "@/lib/db/DbConnect";
 import {auth} from "@/lib/auth/auth";
+import {User} from "@/lib/models/userModel";
 
 export async function POST(req: NextRequest) {
     try {
@@ -41,6 +42,31 @@ export async function POST(req: NextRequest) {
         });
 
         const savedEntry = await newEntry.save();
+
+        const userDocument = await User.findById(user?.id);
+        if (!userDocument) {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+
+        const today = new Date().toISOString().split("T")[0];
+        const lastDate = userDocument?.lastEntryDate;
+
+        const yesterday = new Date(Date.now() - 86400000)
+            .toISOString()
+            .split("T")[0];
+
+        let newStreak = 1;
+
+        if (lastDate === today) {
+            newStreak = userDocument.currentStreak;
+        } else if (lastDate === yesterday) {
+            newStreak = userDocument.currentStreak + 1;
+        }
+
+        userDocument.currentStreak = newStreak;
+
+        userDocument.lastEntryDate = today;
+        await userDocument?.save();
 
         return NextResponse.json({entry: savedEntry}, {status: 201});
     } catch (error) {
