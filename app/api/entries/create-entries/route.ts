@@ -3,6 +3,7 @@ import {IJournalEntry, JournalEntry} from "@/lib/models/journalEntryModel";
 import {connectDB} from "@/lib/db/DbConnect";
 import {auth} from "@/lib/auth/auth";
 import {User} from "@/lib/models/userModel";
+import {recordTimelineEvent} from "@/actions/entries/recordTimelineEvent";
 
 export async function POST(req: NextRequest) {
     try {
@@ -48,6 +49,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
+        //streak code
         const today = new Date().toISOString().split("T")[0];
         const lastDate = userDocument?.lastEntryDate;
 
@@ -67,6 +69,15 @@ export async function POST(req: NextRequest) {
 
         userDocument.lastEntryDate = today;
         await userDocument?.save();
+
+        await recordTimelineEvent({
+            userId: user.id as string,
+            type: "ENTRY_CREATED",
+            entryId: savedEntry._id.toString(),
+            title,
+            content,
+            createdAt: new Date(),
+        })
 
         return NextResponse.json({entry: savedEntry}, {status: 201});
     } catch (error) {

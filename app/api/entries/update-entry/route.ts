@@ -2,6 +2,7 @@ import {NextResponse, NextRequest} from "next/server";
 import {JournalEntry} from "@/lib/models/journalEntryModel";
 import {connectDB} from "@/lib/db/DbConnect";
 import {auth} from "@/lib/auth/auth";
+import {recordTimelineEvent} from "@/actions/entries/recordTimelineEvent";
 
 export async function PUT(req: NextRequest) {
     try {
@@ -40,6 +41,15 @@ export async function PUT(req: NextRequest) {
         entry.updatedAt = new Date();
 
         const updatedEntry = await entry.save();
+
+        await recordTimelineEvent({
+            userId: user.id,
+            type: "ENTRY_UPDATED",
+            entryId: updatedEntry._id.toString(),
+            title: updatedEntry.title,
+            content: updatedEntry.content,
+            createdAt: updatedEntry.updatedAt,
+        })
 
         return NextResponse.json({entry: updatedEntry}, {status: 200});
     }catch (error) {

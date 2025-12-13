@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 export interface ITimelineEvent extends Document {
     userId: mongoose.Types.ObjectId;
     entryId: mongoose.Types.ObjectId;
+    title: string;
     type: "created" | "updated";
     snapshot: string;
     createdAt: Date;
@@ -22,6 +23,11 @@ const TimelineEventSchema: Schema<ITimelineEvent> = new Schema(
             ref: "JournalEntry",
             required: true,
             index: true,
+        },
+        title: {
+            type: String,
+            required: true,
+            maxlength: 100,
         },
 
         type: {
