@@ -5,7 +5,7 @@ export interface ITimelineEvent extends Document {
     entryId: mongoose.Types.ObjectId;
     title: string;
     type: "created" | "updated";
-    snapshot: string;
+    snapshot?: string;
     createdAt: Date;
 }
 
@@ -38,7 +38,8 @@ const TimelineEventSchema: Schema<ITimelineEvent> = new Schema(
 
         snapshot: {
             type: String,
-            required: true,
+            required: false,
+            default: "No content available",
             maxlength: 200,
         },
     },

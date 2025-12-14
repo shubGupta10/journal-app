@@ -1,9 +1,11 @@
-import {NextResponse, NextRequest} from "next/server";
-import {IJournalEntry, JournalEntry} from "@/lib/models/journalEntryModel";
-import {connectDB} from "@/lib/db/DbConnect";
-import {auth} from "@/lib/auth/auth";
-import {User} from "@/lib/models/userModel";
-import {recordTimelineEvent} from "@/actions/entries/recordTimelineEvent";
+import { NextResponse, NextRequest } from "next/server";
+import { IJournalEntry, JournalEntry } from "@/lib/models/journalEntryModel";
+import { connectDB } from "@/lib/db/DbConnect";
+import { auth } from "@/lib/auth/auth";
+import { User } from "@/lib/models/userModel";
+import { UserStreak } from "@/lib/models/userStreakModel";
+import { recordTimelineEvent } from "@/actions/timeline/timelineEvents";
+import mongoose from "mongoose";
 
 export async function POST(req: NextRequest) {
     try {
@@ -12,28 +14,28 @@ export async function POST(req: NextRequest) {
             headers: req.headers
         });
         const user = session?.user;
-        if(!user){
-            return NextResponse.json({error: "Unauthorized"}, {status: 401});
+        if (!user) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const {title, content, mood, tags} = await req.json() as IJournalEntry;
-        if(!title || !content || !mood) {
-            return NextResponse.json({error: "Missing required fields"}, {status: 400});
+        const { title, content, mood, tags } = await req.json() as IJournalEntry;
+        if (!title || !content || !mood) {
+            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
         const existingEntry = await JournalEntry.findOne({
-            userId: user.id as string,
+            userId: new mongoose.Types.ObjectId(user.id as string),
             title,
             content,
             mood
         });
 
-        if(existingEntry) {
-            return NextResponse.json({error: "Duplicate entry: An identical entry already exists"}, {status: 409});
+        if (existingEntry) {
+            return NextResponse.json({ error: "Duplicate entry: An identical entry already exists" }, { status: 409 });
         }
 
         const newEntry = new JournalEntry({
-            userId: user.id as string,
+            userId: new mongoose.Types.ObjectId(user.id as string),
             title,
             content,
             mood,
@@ -44,44 +46,45 @@ export async function POST(req: NextRequest) {
 
         const savedEntry = await newEntry.save();
 
-        const userDocument = await User.findById(user?.id);
-        if (!userDocument) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
-        }
-
-        //streak code
-        const today = new Date().toISOString().split("T")[0];
-        const lastDate = userDocument?.lastEntryDate;
-
-        const yesterday = new Date(Date.now() - 86400000)
-            .toISOString()
-            .split("T")[0];
-
-        let newStreak = 1;
-
-        if (lastDate === today) {
-            newStreak = userDocument.currentStreak;
-        } else if (lastDate === yesterday) {
-            newStreak = userDocument.currentStreak + 1;
-        }
-
-        userDocument.currentStreak = newStreak;
-
-        userDocument.lastEntryDate = today;
-        await userDocument?.save();
-
         await recordTimelineEvent({
-            userId: user.id as string,
-            type: "ENTRY_CREATED",
+            userId: user.id,
+            type: "created",
             entryId: savedEntry._id.toString(),
-            title,
-            content,
-            createdAt: new Date(),
-        })
+            title: savedEntry.title,
+            snapshot: savedEntry.content,
+        });
 
-        return NextResponse.json({entry: savedEntry}, {status: 201});
+        const userId = new mongoose.Types.ObjectId(user?.id);
+        const today = new Date().toISOString().split("T")[0];
+
+        let userStreak = await UserStreak.findOne({ userId });
+
+        if (!userStreak) {
+            userStreak = new UserStreak({
+                userId,
+                currentStreak: 1,
+                lastEntryDate: today,
+            });
+        } else {
+            const lastDate = userStreak.lastEntryDate;
+            const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+
+            if (lastDate === today) {
+                userStreak.currentStreak = userStreak.currentStreak;
+            } else if (lastDate === yesterday) {
+                userStreak.currentStreak = (userStreak.currentStreak || 0) + 1;
+            } else {
+                userStreak.currentStreak = 1;
+            }
+
+            userStreak.lastEntryDate = today;
+        }
+
+        await userStreak.save();
+
+        return NextResponse.json({ entry: savedEntry }, { status: 201 });
     } catch (error) {
         console.error("Error creating journal entry:", error);
-        return NextResponse.json({error: "Internal Server Error"}, {status: 500});
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

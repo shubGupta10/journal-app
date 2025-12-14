@@ -2,7 +2,8 @@ import {NextResponse, NextRequest} from "next/server";
 import {JournalEntry} from "@/lib/models/journalEntryModel";
 import {connectDB} from "@/lib/db/DbConnect";
 import {auth} from "@/lib/auth/auth";
-import {recordTimelineEvent} from "@/actions/entries/recordTimelineEvent";
+import {recordTimelineEvent} from "@/actions/timeline/timelineEvents";
+import mongoose from "mongoose";
 
 export async function PUT(req: NextRequest) {
     try {
@@ -29,7 +30,7 @@ export async function PUT(req: NextRequest) {
             return NextResponse.json({error: "Missing required fields"}, {status: 400});
         }
 
-        const entry = await JournalEntry.findOne({ _id, userId: user.id});
+        const entry = await JournalEntry.findOne({ _id, userId: new mongoose.Types.ObjectId(user.id as string)});
         if(!entry){
             return NextResponse.json({error: "Entry not found or unauthorized"}, {status: 404});
         }
@@ -42,14 +43,17 @@ export async function PUT(req: NextRequest) {
 
         const updatedEntry = await entry.save();
 
-        await recordTimelineEvent({
-            userId: user.id,
-            type: "ENTRY_UPDATED",
-            entryId: updatedEntry._id.toString(),
-            title: updatedEntry.title,
-            content: updatedEntry.content,
-            createdAt: updatedEntry.updatedAt,
-        })
+        try {
+            await recordTimelineEvent({
+                userId: user.id,
+                type: "updated",
+                entryId: updatedEntry._id.toString(),
+                title: updatedEntry.title,
+                snapshot: updatedEntry.content,
+            });
+        } catch (timelineError) {
+            console.error("Failed to record timeline event, but entry was updated:", timelineError);
+        }
 
         return NextResponse.json({entry: updatedEntry}, {status: 200});
     }catch (error) {

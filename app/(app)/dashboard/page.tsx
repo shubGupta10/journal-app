@@ -1,10 +1,11 @@
 "use client"
 
-import {useRouter} from "next/navigation";
-import {authClient} from "@/lib/auth-client";
-import {useEffect, useState} from "react";
-import {getRecentEntries} from "@/actions/entries/getRecentEntries";
-import {EntryCard} from "@/components/app/EntryCard";
+import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
+import { useEffect, useState } from "react";
+import { getRecentEntries } from "@/actions/entries/getRecentEntries";
+import { EntryCard } from "@/components/app/EntryCard";
+import { getUserStreak, getLastEntry } from "@/actions/entries/getTodayOverview";
 
 export default function Dashboard() {
     const session = authClient.useSession();
@@ -12,6 +13,26 @@ export default function Dashboard() {
     const router = useRouter();
     const [recentEntries, setRecentEntries] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const [streak, setStreak] = useState<number | null>(null);
+    const [lastEntry, setLastEntry] = useState<{
+        title: string;
+        updatedAt: string;
+    } | null>(null);
+
+
+    useEffect(() => {
+        if (!user) return;
+
+        const fetchProgressData = async () => {
+            const streakData = await getUserStreak(user.id);
+            const lastEntryData = await getLastEntry(user.id)
+
+            setStreak(streakData ? streakData.currentStreak : 0);
+            setLastEntry(lastEntryData);
+        }
+        fetchProgressData();
+    }, [user])
 
     useEffect(() => {
         const fetchtheRecentEntries = async () => {
@@ -45,23 +66,34 @@ export default function Dashboard() {
             </section>
 
             <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-5 border rounded-xl bg-card space-y-3">
-                    <h2 className="font-semibold">Your Dev Progress</h2>
+                <div className="p-6 border rounded-xl bg-card space-y-4">
+                    <h2 className="font-semibold text-lg">Your Dev Progress</h2>
 
-                    {/* Streak placeholder */}
-                    <div className="h-6 bg-gray-200 rounded w-1/2" />
+                    {/* Streak */}
+                    <div>
+                        <p className="text-sm text-muted-foreground">Current streak</p>
+                        <p className="text-2xl font-bold">🔥 {streak ?? 0} day{streak === 1 ? "" : "s"}</p>
+                    </div>
 
-                    {/* Last Entry placeholder */}
-                    <div className="h-6 bg-gray-200 rounded w-3/4" />
+                    {/* Last Entry */}
+                    <div className="pt-2 border-t">
+                        <p className="text-sm text-muted-foreground">Last entry</p>
 
-                    {/* Divider */}
-                    <div className="border-t pt-3" />
-
-                    {/* Quote placeholder */}
-                    <div className="h-4 bg-gray-200 rounded w-2/3" />
-
-                    {/* COMMENT: We'll fill this with real data later */}
+                        {lastEntry ? (
+                            <>
+                                <p className="font-medium truncate">{lastEntry.title}</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Updated {new Date(lastEntry.updatedAt).toLocaleString()}
+                                </p>
+                            </>
+                        ) : (
+                            <p className="text-sm text-muted-foreground">
+                                No entries yet
+                            </p>
+                        )}
+                    </div>
                 </div>
+
 
                 {/* Right Column — Add Entry */}
                 <div className="p-5 border rounded-xl bg-card flex flex-col justify-between">

@@ -5,8 +5,6 @@ export interface IUser extends Document {
     email: string;
     username: string;
     password: string;
-    currentStreak: number;
-    lastEntryDate: string | null;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -41,14 +39,6 @@ const UserSchema: Schema<IUser> = new Schema(
             type: String,
             required: true,
             minlength: 6,
-        },
-        currentStreak: {
-            type: Number,
-            default: 0,
-        },
-        lastEntryDate: {
-            type: String,
-            default: null,
         },
     },
     {

@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 
 type EntryCardProps = {
     id: string;
@@ -14,12 +14,12 @@ type EntryCardProps = {
 
 export function EntryCard({
     id,
-                              title,
-                              content,
-                              tags,
-                              mood,
-                              createdAt,
-                          }: EntryCardProps) {
+    title,
+    content,
+    tags,
+    mood,
+    createdAt,
+}: EntryCardProps) {
     const date = format(new Date(createdAt), "dd MMM yyyy");
     const preview =
         content.length > 120 ? content.slice(0, 120) + "…" : content;
