@@ -2,14 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function PublicNavbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -32,7 +30,6 @@ export default function PublicNavbar() {
       )}
     >
       <div className="max-w-6xl mx-auto flex h-16 items-center justify-between px-4 md:px-6">
-        {/* Logo */}
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center space-x-2">
             <span className="text-xl font-bold text-foreground">
@@ -41,7 +38,6 @@ export default function PublicNavbar() {
           </Link>
         </div>
 
-        {/* Desktop Nav */}
         <nav className="hidden md:flex gap-6">
           {navLinks.map((link) => (
             <Link
@@ -54,7 +50,6 @@ export default function PublicNavbar() {
           ))}
         </nav>
 
-        {/* Actions */}
         <div className="flex items-center gap-4">
           <Link
             href="/auth/login"
