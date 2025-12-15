@@ -13,62 +13,55 @@ type EntryCardProps = {
 };
 
 export function EntryCard({
-                              id,
-                              title,
-                              content,
-                              tags,
-                              mood,
-                              createdAt,
-                          }: EntryCardProps) {
+    id,
+    title,
+    content,
+    tags,
+    mood,
+    createdAt,
+}: EntryCardProps) {
     const date = format(new Date(createdAt), "dd MMM yyyy");
     const preview =
         content.length > 120 ? content.slice(0, 120) + "…" : content;
     const router = useRouter();
 
     return (
-        <Card
-            onClick={() => router.push(`/entries/show/${id}`)}
-            className="border-2 border-border bg-card rounded-2xl hover:border-primary hover:shadow-lg transition-all duration-300 cursor-pointer group overflow-hidden"
-        >
-            <CardHeader className="space-y-3 pb-4">
+        <Card onClick={() => router.push(`/entries/show/${id}`)} className="border bg-card shadow-sm rounded-xl hover:shadow-md transition-shadow duration-200 cursor-pointer">
+            <CardHeader>
                 {/* DATE */}
-                <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-                    {date}
-                </p>
+                <p className="text-xs text-muted-foreground">{date}</p>
 
                 {/* TITLE */}
-                <CardTitle className="text-xl font-semibold leading-snug line-clamp-2 group-hover:text-primary transition-colors duration-300">
+                <CardTitle className="text-lg font-semibold line-clamp-1">
                     {title || "Untitled Entry"}
                 </CardTitle>
             </CardHeader>
 
-            <CardContent className="flex flex-col gap-5">
+            <CardContent className="flex flex-col gap-3">
 
                 {/* PREVIEW */}
-                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                <p className="text-sm text-muted-foreground line-clamp-3">
                     {preview}
                 </p>
 
-                {/* TAGS & MOOD */}
-                {(tags.length > 0 || mood) && (
-                    <div className="flex flex-wrap gap-2 pt-3 border-t-2 border-border">
-                        {tags.map((tag) => (
-                            <Badge
-                                key={tag}
-                                className="bg-secondary text-secondary-foreground border-2 border-secondary px-3 py-1 rounded-full text-xs font-semibold"
-                            >
-                                #{tag}
-                            </Badge>
-                        ))}
+                {/* TAGS */}
+                <div className="flex flex-wrap gap-2 mt-1">
+                    {tags.map((tag) => (
+                        <Badge
+                            key={tag}
+                            className="bg-secondary/20 text-secondary border border-secondary/30 px-2 py-0.5 rounded-full"
+                        >
+                            #{tag}
+                        </Badge>
+                    ))}
 
-                        {/* MOOD */}
-                        {mood && (
-                            <Badge className="bg-primary text-primary-foreground border-2 border-primary px-3 py-1 rounded-full text-xs font-semibold">
-                                {mood}
-                            </Badge>
-                        )}
-                    </div>
-                )}
+                    {/* MOOD */}
+                    {mood && (
+                        <Badge className="bg-primary/20 text-primary border border-primary/30 px-2 py-0.5 rounded-full">
+                            {mood}
+                        </Badge>
+                    )}
+                </div>
             </CardContent>
         </Card>
     );
