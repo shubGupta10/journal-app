@@ -6,7 +6,9 @@ import { useEffect, useState } from "react";
 import { getRecentEntries } from "@/actions/entries/getRecentEntries";
 import { EntryCard } from "@/components/app/EntryCard";
 import { getUserStreak, getLastEntry } from "@/actions/entries/getTodayOverview";
-import {DailyQuote} from "@/components/app/DailyQuote";
+import { DailyQuote } from "@/components/app/DailyQuote";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card"; // Using Card component for consistency
 
 export default function Dashboard() {
     const session = authClient.useSession();
@@ -47,101 +49,131 @@ export default function Dashboard() {
     }, [user]);
 
     return (
-        <div className="w-full max-w-6xl mx-auto px-4 flex flex-col gap-16">
-            <section className="flex flex-col gap-8">
-                <div className="space-y-2">
-                    <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
-                        Hi <span className="text-secondary">{user?.name}</span>
+        <div className="w-full max-w-7xl mx-auto px-6 flex flex-col gap-10">
+            {/* HEADER */}
+            <section className="flex flex-col gap-6">
+                <div className="flex flex-col gap-2">
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                        Welcome back, <span className="text-primary">{user?.name}</span>
                     </h1>
-                    <p className="text-sm md:text-base text-muted-foreground max-w-md leading-relaxed">
-                        Keep pushing your craft today.
+                    <p className="text-base text-muted-foreground leading-relaxed">
+                        Capture your thoughts, track your progress, and keep pushing forward.
                     </p>
                 </div>
-
-                <DailyQuote/>
+                <DailyQuote />
             </section>
 
+            {/* OVERVIEW SECTION */}
             <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Streak */}
-                <div className="p-7 rounded-2xl border border-secondary/30 bg-secondary/10 space-y-5 hover:shadow-md transition">
-                    <p className="text-xs uppercase tracking-wider text-secondary font-semibold">
-                        Current streak
-                    </p>
-                    <div className="space-y-1">
-                        <p className="text-5xl font-semibold tracking-tight text-foreground">
-                            {streak ?? 0}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                            day{streak === 1 ? "" : "s"} writing
-                        </p>
-                    </div>
-                </div>
-
-                {/* Last Entry */}
-                <div className="p-7 rounded-2xl bg-card border border-border space-y-5 hover:shadow-md transition">
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                        Last entry
-                    </p>
-
-                    {lastEntry ? (
-                        <div className="space-y-2">
-                            <p className="text-lg font-medium leading-snug text-foreground line-clamp-2">
-                                {lastEntry.title}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                                {new Date(lastEntry.updatedAt).toLocaleDateString("en-US", {
-                                    month: "short",
-                                    day: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                })}
-                            </p>
+                
+                {/* IMPROVED: STREAK & LAST ENTRY WIDGET */}
+                <Card className="lg:col-span-2 flex flex-col md:flex-row border border-border bg-card shadow-sm overflow-hidden">
+                    
+                    {/* LEFT PANE: STREAK METRIC */}
+                    <div className="flex-1 p-8 flex flex-col justify-center border-b md:border-b-0 md:border-r border-border hover:bg-muted/5 transition-colors">
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                                Current Streak
+                            </span>
+                            {/* Optional: Fire icon or visual accent could go here */}
                         </div>
-                    ) : (
-                        <p className="text-sm text-muted-foreground">
-                            No entries yet
-                        </p>
-                    )}
-                </div>
-
-                {/* Write Today */}
-                <div className="p-7 rounded-2xl border border-primary/30 bg-primary/10 flex flex-col justify-between gap-6 hover:shadow-md transition">
-                    <div className="space-y-2">
-                        <p className="text-xs uppercase tracking-wider text-primary font-semibold">
-                            Today’s log
-                        </p>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
-                            Add your thoughts, fixes, learnings or tasks.
+                        <div className="mt-2">
+                            <span className="text-6xl font-extrabold tracking-tighter text-foreground">
+                                {streak ?? 0}
+                            </span>
+                            <span className="ml-3 text-lg font-medium text-muted-foreground">
+                                days
+                            </span>
+                        </div>
+                        <p className="mt-4 text-sm text-muted-foreground font-medium">
+                            {streak && streak > 0 
+                                ? "You're building momentum. Keep it up!" 
+                                : "Start your streak today by writing an entry."}
                         </p>
                     </div>
 
-                    <button
-                        onClick={() => router.push("/entries/new")}
-                        className="w-full rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition"
-                    >
-                        Add entry
-                    </button>
-                </div>
+                    {/* RIGHT PANE: CONTEXTUAL LAST ENTRY */}
+                    <div className="flex-1 p-8 flex flex-col justify-center hover:bg-muted/5 transition-colors relative">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-primary/0 md:group-hover:bg-primary/50 transition-colors" />
+                        
+                        <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">
+                            Latest Activity
+                        </span>
+
+                        {lastEntry ? (
+                            <div className="space-y-3">
+                                <h3 className="text-xl font-bold leading-tight text-foreground line-clamp-2">
+                                    {lastEntry.title}
+                                </h3>
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <span className="font-medium text-foreground">
+                                        {new Date(lastEntry.updatedAt).toLocaleDateString("en-US", { weekday: 'long' })}
+                                    </span>
+                                    <span>•</span>
+                                    <span>
+                                        {new Date(lastEntry.updatedAt).toLocaleDateString("en-US", {
+                                            month: "short",
+                                            day: "numeric",
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                        })}
+                                    </span>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col justify-center h-full space-y-2">
+                                <p className="text-lg font-semibold text-foreground">No entries yet</p>
+                                <p className="text-sm text-muted-foreground">Your recent activity will appear here.</p>
+                            </div>
+                        )}
+                    </div>
+                </Card>
+
+                {/* ACTION CARD */}
+                <Card className="flex flex-col justify-between p-8 border border-border bg-card shadow-sm hover:border-primary/50 hover:shadow-md transition-all duration-200">
+                    <div className="space-y-3">
+                        <span className="text-xs font-bold uppercase tracking-widest text-primary">
+                            New Log
+                        </span>
+                        <h3 className="text-xl font-bold text-foreground">Write Today</h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                            Don't break the chain. Document your day now.
+                        </p>
+                    </div>
+                    <div className="pt-6">
+                        <Button 
+                            onClick={() => router.push("/entries/new")}
+                            className="w-full h-11 text-sm bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-sm"
+                        >
+                            Create Entry
+                        </Button>
+                    </div>
+                </Card>
             </section>
 
-            <section className="flex flex-col gap-8">
-                <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-foreground">
-                    Recent entries
-                </h2>
+            {/* RECENT ENTRIES GRID */}
+            <section className="space-y-6">
+                <div className="flex items-center justify-between pb-2 border-b border-border/40">
+                    <h2 className="text-xl font-bold tracking-tight text-foreground">
+                        Recent Entries
+                    </h2>
+                </div>
 
                 {loading && (
-                    <div className="py-12 text-center">
-                        <p className="text-sm text-muted-foreground">
-                            Loading recent entries…
-                        </p>
+                    <div className="py-20 text-center">
+                        <p className="text-sm text-muted-foreground animate-pulse">Loading entries...</p>
                     </div>
                 )}
 
                 {!loading && recentEntries.length === 0 && (
-                    <div className="py-16 text-center rounded-2xl border border-dashed border-border bg-card">
-                        <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                            You have no entries yet. Click “Add entry” to create your first log.
+                    <div className="flex flex-col items-center justify-center py-16 rounded-xl border border-dashed border-border bg-muted/5 text-center">
+                        <p className="text-base font-medium text-foreground mb-2">It's quiet here</p>
+                        <p className="text-sm text-muted-foreground max-w-xs mb-6">
+                            Start writing to see your timeline populate.
                         </p>
+                        <Button variant="outline" onClick={() => router.push("/entries/new")}>
+                            Start Writing
+                        </Button>
                     </div>
                 )}
 

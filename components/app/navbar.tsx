@@ -54,7 +54,6 @@ export default function AppNavbar() {
         { href: "/dashboard", label: "Dashboard", icon: Calendar },
         { href: "/entries", label: "Entries", icon: List },
         { href: "/timeline", label: "Timeline", icon: Activity },
-        { href: "/search", label: "Search", icon: Search },
     ];
 
     return (

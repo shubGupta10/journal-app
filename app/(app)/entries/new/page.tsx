@@ -6,7 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AddNewEntry() {
     const router = useRouter();
@@ -22,7 +23,9 @@ export default function AddNewEntry() {
         tags: [],
     });
 
-    const presetTags = ["bug", "fix", "feature", "learning", "frontend", "backend"];
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const presetTags = ["bug", "fix", "feature", "learning", "frontend", "backend", "refactor", "meeting"];
 
     const toggleTag = (tag: string) => {
         setFormData((prev) => {
@@ -36,22 +39,30 @@ export default function AddNewEntry() {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-
-        const response = await fetch("/api/entries/create-entries", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formData),
-        });
-
-        const data = await response.json();
-        console.log(data);
-        setFormData({
-            title: "",
-            content: "",
-            mood: "",
-            tags: [],
-        })
-        router.push('/dashboard')
+        setIsSubmitting(true);
+        
+        try {
+            const response = await fetch("/api/entries/create-entries", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData),
+            });
+    
+            const data = await response.json();
+            console.log(data);
+            
+            setFormData({
+                title: "",
+                content: "",
+                mood: "",
+                tags: [],
+            });
+            router.push('/dashboard');
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleCustomTag = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -72,115 +83,150 @@ export default function AddNewEntry() {
     };
 
     return (
-        <div className="max-w-6xl mx-auto w-full">
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="max-w-6xl mx-auto w-full px-6 py-8 flex flex-col gap-8">
+            
+            <div className="flex items-center justify-between border-b border-border pb-6">
+                <div className="space-y-1">
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground">New Log</h1>
+                    <p className="text-base text-muted-foreground font-medium">
+                        Document your progress, fixes, or daily learnings.
+                    </p>
+                </div>
+                <div className="flex gap-3">
+                    <Button
+                        variant="outline"
+                        type="button"
+                        onClick={() => router.push('/dashboard')}
+                        className="hidden sm:flex font-semibold border-border hover:bg-muted"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 min-w-[120px] font-bold shadow-sm"
+                    >
+                        {isSubmitting ? "Saving..." : "Save Entry"}
+                    </Button>
+                </div>
+            </div>
 
-                <div className="lg:col-span-2 flex flex-col gap-6">
-                    <div className="bg-primary rounded-xl p-6">
-                        <h1 className="text-3xl font-semibold text-primary-foreground">Add New Entry</h1>
-                        <p className="text-primary-foreground/90 mt-2">
-                            Write your thoughts, fixes, or learnings.
-                        </p>
-                    </div>
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-                    <div className="border-2 border-border bg-card rounded-xl p-8 space-y-6">
-                        <div className="flex flex-col gap-2">
-                            <Label className="text-foreground font-medium text-base">Title</Label>
-                            <Input
-                                placeholder="Optional title..."
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                className="h-12 text-base bg-muted"
-                            />
-                        </div>
-
-                        <div className="flex flex-col gap-2">
-                            <Label className="text-foreground font-medium text-base">Mood</Label>
-                            <Input
-                                placeholder="happy, tired, productive..."
-                                value={formData.mood}
-                                onChange={(e) => setFormData({ ...formData, mood: e.target.value })}
-                                className="h-12 text-base bg-muted"
-                            />
-                        </div>
-
-                        <div className="flex flex-col gap-3">
-                            <Label className="text-foreground font-medium text-base">Tags</Label>
-
-                            <div className="flex gap-2 flex-wrap">
-                                {presetTags.map((tag) => {
-                                    const active = formData.tags.includes(tag);
-                                    return (
-                                        <Badge
-                                            key={tag}
-                                            variant={active ? "default" : "outline"}
-                                            className={`cursor-pointer px-4 py-2 ${
-                                                active
-                                                    ? "bg-primary text-primary-foreground"
-                                                    : "hover:bg-muted"
-                                            }`}
-                                            onClick={() => toggleTag(tag)}
-                                        >
-                                            {tag}
-                                        </Badge>
-                                    );
-                                })}
+                <div className="lg:col-span-4 flex flex-col gap-6">
+                    <Card className="border border-border shadow-sm">
+                        <CardHeader className="pb-4 border-b border-border bg-muted/20">
+                            <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                                Entry Details
+                            </CardTitle>
+                        </CardHeader>
+                        
+                        <CardContent className="flex flex-col gap-6 pt-6">
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold text-foreground">Title</Label>
+                                <Input
+                                    placeholder="e.g. Fixed Auth Component"
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                    className="bg-muted/30 border-input font-medium focus-visible:ring-primary focus-visible:border-primary transition-all"
+                                />
                             </div>
 
-                            <Input
-                                placeholder="Add custom tag (press Enter)…"
-                                onKeyDown={handleCustomTag}
-                                className="h-12 text-base bg-muted"
-                            />
-                        </div>
-                    </div>
-
-                    {formData.tags.length > 0 && (
-                        <div className="bg-accent border-2 border-border rounded-xl p-6">
-                            <h3 className="font-semibold mb-3">Selected Tags</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {formData.tags.map((tag) => (
-                                    <Badge
-                                        key={tag}
-                                        className="bg-primary text-primary-foreground"
-                                    >
-                                        {tag}
-                                    </Badge>
-                                ))}
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold text-foreground">Mood</Label>
+                                <Input
+                                    placeholder="e.g. Productive, Tired..."
+                                    value={formData.mood}
+                                    onChange={(e) => setFormData({ ...formData, mood: e.target.value })}
+                                    className="bg-muted/30 border-input font-medium focus-visible:ring-primary focus-visible:border-primary transition-all"
+                                />
                             </div>
-                        </div>
-                    )}
+
+                            <div className="space-y-3 pt-2">
+                                <Label className="text-sm font-semibold text-foreground">Tags</Label>
+                                
+                                <div className="flex flex-wrap gap-2">
+                                    {presetTags.map((tag) => {
+                                        const active = formData.tags.includes(tag);
+                                        return (
+                                            <Badge
+                                                key={tag}
+                                                variant="outline"
+                                                className={`cursor-pointer px-3 py-1.5 text-xs font-semibold transition-all border select-none ${
+                                                    active
+                                                        ? "bg-primary text-primary-foreground border-primary shadow-sm hover:bg-primary/90"
+                                                        : "bg-background text-muted-foreground border-border hover:border-primary/50 hover:text-foreground hover:bg-muted/50"
+                                                }`}
+                                                onClick={() => toggleTag(tag)}
+                                            >
+                                                {tag}
+                                            </Badge>
+                                        );
+                                    })}
+                                </div>
+
+                                <div className="pt-2">
+                                    <Input
+                                        placeholder="Add custom tag + Enter"
+                                        onKeyDown={handleCustomTag}
+                                        className="bg-muted/30 border-input text-sm h-10 focus-visible:ring-primary transition-all"
+                                    />
+                                </div>
+
+                                {formData.tags.filter(t => !presetTags.includes(t)).length > 0 && (
+                                    <div className="flex flex-wrap gap-2 pt-3 border-t border-border mt-2">
+                                        {formData.tags.filter(t => !presetTags.includes(t)).map(tag => (
+                                             <Badge
+                                                key={tag}
+                                                className="bg-secondary text-secondary-foreground hover:bg-destructive hover:text-destructive-foreground cursor-pointer transition-colors px-3 py-1"
+                                                onClick={() => toggleTag(tag)}
+                                            >
+                                                {tag} <span className="ml-1.5 opacity-60 text-[10px]">✕</span>
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
 
-                <div className="lg:col-span-3 flex flex-col gap-6">
-                    <div className="border-2 border-border bg-card rounded-xl p-8 flex-1 flex flex-col">
-                        <div className="flex flex-col gap-3 flex-1">
-                            <Label className="text-foreground font-medium text-base">Content</Label>
-                            <Textarea
-                                placeholder="What did you build, learn or fix today?"
-                                value={formData.content}
-                                className="flex-1 min-h-[600px] resize-none text-base bg-muted"
-                                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                            />
+                <Card className="lg:col-span-8 border border-border shadow-md flex flex-col min-h-[600px] overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                    <CardHeader className="pb-0 pt-4 px-6 border-b border-border/40 bg-card">
+                        <div className="flex items-center justify-between">
+                            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                                Content Editor
+                            </Label>
                         </div>
-                    </div>
-
-                    <div className="flex gap-3">
-                        <Button
-                            type="submit"
-                            className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium px-8"
-                        >
-                            Save Entry
-                        </Button>
-                        <Button
+                    </CardHeader>
+                    <CardContent className="flex-1 p-0 flex flex-col bg-background">
+                        <Textarea
+                            placeholder="What did you build, learn, or fix today?"
+                            value={formData.content}
+                            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                            className="flex-1 w-full border-0 focus-visible:ring-0 resize-none p-8 text-base leading-7 text-foreground placeholder:text-muted-foreground/50"
+                        />
+                    </CardContent>
+                    
+                    <div className="p-4 border-t border-border bg-muted/10 flex sm:hidden gap-3">
+                         <Button
+                            variant="outline"
                             type="button"
                             onClick={() => router.push('/dashboard')}
-                            className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-medium px-6"
+                            className="flex-1"
                         >
                             Cancel
                         </Button>
+                        <Button
+                            onClick={handleSubmit}
+                            disabled={isSubmitting}
+                            className="flex-1 bg-primary text-primary-foreground"
+                        >
+                            Save
+                        </Button>
                     </div>
-                </div>
+                </Card>
+
             </form>
         </div>
     );

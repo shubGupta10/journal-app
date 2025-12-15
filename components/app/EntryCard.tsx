@@ -26,41 +26,50 @@ export function EntryCard({
     const router = useRouter();
 
     return (
-        <Card onClick={() => router.push(`/entries/show/${id}`)} className="border bg-card shadow-sm rounded-xl hover:shadow-md transition-shadow duration-200 cursor-pointer">
-            <CardHeader>
-                {/* DATE */}
-                <p className="text-xs text-muted-foreground">{date}</p>
+        <Card
+            onClick={() => router.push(`/entries/show/${id}`)}
+            className="group flex flex-col justify-between h-full bg-card border border-border/60 shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-200 cursor-pointer"
+        >
+            <CardHeader className="space-y-4 pb-3">
+                <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        {date}
+                    </p>
+                    {mood && (
+                        <Badge className="bg-primary text-primary-foreground hover:bg-primary border-0 rounded-md px-2.5 py-0.5 text-xs font-medium shadow-sm">
+                            {mood}
+                        </Badge>
+                    )}
+                </div>
 
-                {/* TITLE */}
-                <CardTitle className="text-lg font-semibold line-clamp-1">
+                <CardTitle className="text-lg font-bold text-foreground leading-tight tracking-tight">
                     {title || "Untitled Entry"}
                 </CardTitle>
             </CardHeader>
 
-            <CardContent className="flex flex-col gap-3">
-
-                {/* PREVIEW */}
-                <p className="text-sm text-muted-foreground line-clamp-3">
+            <CardContent className="flex flex-col gap-4">
+                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
                     {preview}
                 </p>
 
-                {/* TAGS */}
-                <div className="flex flex-wrap gap-2 mt-1">
-                    {tags.map((tag) => (
-                        <Badge
-                            key={tag}
-                            className="bg-secondary/20 text-secondary border border-secondary/30 px-2 py-0.5 rounded-full"
-                        >
-                            #{tag}
-                        </Badge>
-                    ))}
+                {/* Tags Section */}
+                {tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                        {tags.map((tag) => (
+                            <Badge
+                                key={tag}
+                                variant="secondary"
+                                className="bg-secondary text-secondary-foreground hover:bg-secondary/80 border-0 rounded-md px-2 py-1 text-xs font-medium"
+                            >
+                                {tag}
+                            </Badge>
+                        ))}
+                    </div>
+                )}
 
-                    {/* MOOD */}
-                    {mood && (
-                        <Badge className="bg-primary/20 text-primary border border-primary/30 px-2 py-0.5 rounded-full">
-                            {mood}
-                        </Badge>
-                    )}
+                {/* Visual Button - Rendered as a div to prevent logical conflict with Card onClick */}
+                <div className="mt-2 w-full rounded-md bg-primary py-2 text-center text-sm font-semibold text-primary-foreground shadow-sm group-hover:bg-primary/90 transition-colors">
+                    Open Entry
                 </div>
             </CardContent>
         </Card>

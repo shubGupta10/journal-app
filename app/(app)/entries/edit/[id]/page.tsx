@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Entry {
     _id: string;
@@ -31,8 +32,9 @@ export default function EditEntryPage() {
 
     const [formData, setFormData] = useState<Entry | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const presetTags = ["bug", "fix", "feature", "learning", "frontend", "backend"];
+    const presetTags = ["bug", "fix", "feature", "learning", "frontend", "backend", "refactor", "meeting"];
 
     // Load entry data
     useEffect(() => {
@@ -82,149 +84,190 @@ export default function EditEntryPage() {
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (!formData) return;
+        setIsSubmitting(true);
 
-        const response = await fetch("/api/entries/update-entry", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formData),
-        });
+        try {
+            const response = await fetch("/api/entries/update-entry", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData),
+            });
 
-        const data = await response.json();
-        router.push(`/entries/show/${formData._id}`);
+            await response.json();
+            router.push(`/entries/show/${formData._id}`);
+        } catch (error) {
+            console.error("Failed to update entry", error);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (loading || !formData) {
         return (
-            <div className="max-w-4xl mx-auto text-center py-20">
-                <p className="text-muted-foreground">Loading entry…</p>
+            <div className="max-w-6xl mx-auto py-32 flex flex-col items-center justify-center space-y-4">
+                <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                <p className="text-sm font-medium text-muted-foreground animate-pulse">Loading entry...</p>
             </div>
         );
     }
 
     return (
-        <div className="max-w-6xl mx-auto w-full">
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="max-w-6xl mx-auto w-full px-6 py-8 flex flex-col gap-8">
+            
+            {/* PAGE HEADER */}
+            <div className="flex items-center justify-between border-b border-border pb-6">
+                <div className="space-y-1">
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground">Edit Entry</h1>
+                    <p className="text-base text-muted-foreground font-medium">
+                        Refine your thoughts and update your log.
+                    </p>
+                </div>
+                <div className="flex gap-3">
+                    <Button
+                        variant="outline"
+                        type="button"
+                        onClick={() => router.push(`/entries/show/${id}`)}
+                        className="hidden sm:flex font-semibold border-border hover:bg-muted"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 min-w-[120px] font-bold shadow-sm"
+                    >
+                        {isSubmitting ? "Updating..." : "Save Changes"}
+                    </Button>
+                </div>
+            </div>
 
-                {/* LEFT SECTION */}
-                <div className="lg:col-span-2 flex flex-col gap-6">
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-                    {/* HEADER BANNER */}
-                    <div className="bg-primary rounded-xl p-6">
-                        <h1 className="text-3xl font-semibold text-primary-foreground">Edit Entry</h1>
-                        <p className="text-primary-foreground/90 mt-2">
-                            Update your thoughts, fixes, or learnings.
-                        </p>
-                    </div>
+                {/* LEFT COLUMN: METADATA */}
+                <div className="lg:col-span-4 flex flex-col gap-6">
+                    <Card className="border border-border shadow-sm">
+                        <CardHeader className="pb-4 border-b border-border bg-muted/20">
+                            <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                                Entry Details
+                            </CardTitle>
+                        </CardHeader>
 
-                    {/* TITLE, MOOD, TAGS */}
-                    <div className="border-2 border-border bg-card rounded-xl p-8 space-y-6">
-
-                        {/* Title */}
-                        <div className="flex flex-col gap-2">
-                            <Label className="text-foreground font-medium text-base">Title</Label>
-                            <Input
-                                value={formData.title}
-                                placeholder="Optional title..."
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                className="h-12 text-base bg-muted"
-                            />
-                        </div>
-
-                        {/* Mood */}
-                        <div className="flex flex-col gap-2">
-                            <Label className="text-foreground font-medium text-base">Mood</Label>
-                            <Input
-                                value={formData.mood}
-                                placeholder="happy, tired, productive..."
-                                onChange={(e) => setFormData({ ...formData, mood: e.target.value })}
-                                className="h-12 text-base bg-muted"
-                            />
-                        </div>
-
-                        {/* Tags */}
-                        <div className="flex flex-col gap-3">
-                            <Label className="text-foreground font-medium text-base">Tags</Label>
-
-                            {/* Preset tags */}
-                            <div className="flex gap-2 flex-wrap">
-                                {presetTags.map((tag) => {
-                                    const active = formData.tags.includes(tag);
-                                    return (
-                                        <Badge
-                                            key={tag}
-                                            variant={active ? "default" : "outline"}
-                                            className={`cursor-pointer px-4 py-2 ${
-                                                active
-                                                    ? "bg-primary text-primary-foreground"
-                                                    : "hover:bg-muted"
-                                            }`}
-                                            onClick={() => toggleTag(tag)}
-                                        >
-                                            {tag}
-                                        </Badge>
-                                    );
-                                })}
+                        <CardContent className="flex flex-col gap-6 pt-6">
+                            {/* Title */}
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold text-foreground">Title</Label>
+                                <Input
+                                    value={formData.title}
+                                    placeholder="Optional title..."
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                    className="bg-muted/30 border-input font-medium focus-visible:ring-primary focus-visible:border-primary transition-all"
+                                />
                             </div>
 
-                            {/* Custom tag input */}
-                            <Input
-                                placeholder="Add custom tag (press Enter)…"
-                                onKeyDown={handleCustomTag}
-                                className="h-12 text-base bg-muted"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Selected Tags */}
-                    {formData.tags.length > 0 && (
-                        <div className="bg-accent border-2 border-border rounded-xl p-6">
-                            <h3 className="font-semibold mb-3">Selected Tags</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {formData.tags.map((tag) => (
-                                    <Badge key={tag} className="bg-primary text-primary-foreground">
-                                        {tag}
-                                    </Badge>
-                                ))}
+                            {/* Mood */}
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold text-foreground">Mood</Label>
+                                <Input
+                                    value={formData.mood}
+                                    placeholder="e.g. Productive, Tired..."
+                                    onChange={(e) => setFormData({ ...formData, mood: e.target.value })}
+                                    className="bg-muted/30 border-input font-medium focus-visible:ring-primary focus-visible:border-primary transition-all"
+                                />
                             </div>
-                        </div>
-                    )}
+
+                            {/* Tags */}
+                            <div className="space-y-3 pt-2">
+                                <Label className="text-sm font-semibold text-foreground">Tags</Label>
+
+                                {/* Presets */}
+                                <div className="flex flex-wrap gap-2">
+                                    {presetTags.map((tag) => {
+                                        const active = formData.tags.includes(tag);
+                                        return (
+                                            <Badge
+                                                key={tag}
+                                                variant="outline"
+                                                className={`cursor-pointer px-3 py-1.5 text-xs font-semibold transition-all border select-none ${
+                                                    active
+                                                        ? "bg-primary text-primary-foreground border-primary shadow-sm hover:bg-primary/90"
+                                                        : "bg-background text-muted-foreground border-border hover:border-primary/50 hover:text-foreground hover:bg-muted/50"
+                                                }`}
+                                                onClick={() => toggleTag(tag)}
+                                            >
+                                                {tag}
+                                            </Badge>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Custom Input */}
+                                <div className="pt-2">
+                                    <Input
+                                        placeholder="Add custom tag + Enter"
+                                        onKeyDown={handleCustomTag}
+                                        className="bg-muted/30 border-input text-sm h-10 focus-visible:ring-primary transition-all"
+                                    />
+                                </div>
+
+                                {/* Selected Tags Display */}
+                                {formData.tags.filter(t => !presetTags.includes(t)).length > 0 && (
+                                    <div className="flex flex-wrap gap-2 pt-3 border-t border-border mt-2">
+                                        {formData.tags.filter(t => !presetTags.includes(t)).map(tag => (
+                                             <Badge
+                                                key={tag}
+                                                className="bg-secondary text-secondary-foreground hover:bg-destructive hover:text-destructive-foreground cursor-pointer transition-colors px-3 py-1"
+                                                onClick={() => toggleTag(tag)}
+                                            >
+                                                {tag} <span className="ml-1.5 opacity-60 text-[10px]">✕</span>
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
 
-                {/* RIGHT SECTION */}
-                <div className="lg:col-span-3 flex flex-col gap-6">
-
-                    {/* Content box */}
-                    <div className="border-2 border-border bg-card rounded-xl p-8 flex-1 flex flex-col">
-                        <div className="flex flex-col gap-3 flex-1">
-                            <Label className="text-foreground font-medium text-base">Content</Label>
-
-                            <Textarea
-                                value={formData.content}
-                                placeholder="What did you build, learn or fix today?"
-                                className="flex-1 min-h-[600px] resize-none text-base bg-muted"
-                                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                            />
+                {/* RIGHT COLUMN: EDITOR */}
+                <Card className="lg:col-span-8 border border-border shadow-md flex flex-col min-h-[600px] overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                    <CardHeader className="pb-0 pt-4 px-6 border-b border-border/40 bg-card">
+                        <div className="flex items-center justify-between">
+                            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                                Content Editor
+                            </Label>
+                            <span className="text-[10px] uppercase font-bold text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full">
+                                Markdown Supported
+                            </span>
                         </div>
-                    </div>
+                    </CardHeader>
+                    <CardContent className="flex-1 p-0 flex flex-col bg-background">
+                        <Textarea
+                            value={formData.content}
+                            placeholder="What did you build, learn or fix today?"
+                            className="flex-1 w-full border-0 focus-visible:ring-0 resize-none p-8 text-base leading-7 text-foreground placeholder:text-muted-foreground/50"
+                            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                        />
+                    </CardContent>
 
-                    {/* Buttons */}
-                    <div className="flex gap-3">
-                        <Button
-                            type="submit"
-                            className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium px-8"
-                        >
-                            Save Changes
-                        </Button>
-
-                        <Button
+                    {/* Mobile Only Action Buttons */}
+                    <div className="p-4 border-t border-border bg-muted/10 flex sm:hidden gap-3">
+                         <Button
+                            variant="outline"
                             type="button"
                             onClick={() => router.push(`/entries/show/${id}`)}
-                            className="bg-secondary text-secondary-foreground hover:bg-secondary/90 font-medium px-6"
+                            className="flex-1"
                         >
                             Cancel
                         </Button>
+                        <Button
+                            onClick={handleSubmit}
+                            disabled={isSubmitting}
+                            className="flex-1 bg-primary text-primary-foreground"
+                        >
+                            Save
+                        </Button>
                     </div>
-                </div>
+                </Card>
 
             </form>
         </div>
