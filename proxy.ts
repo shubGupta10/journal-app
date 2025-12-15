@@ -6,7 +6,7 @@ export default function proxy(request: NextRequest) {
 
     const publicRoutes = path === "/" || path.startsWith("/auth/login") || path.startsWith("/auth/signUp");
 
-    const sessionCookie = request.cookies.get('better-auth.session_token');
+    const sessionCookie = request.cookies.get("better-auth.session_token") || request.cookies.get("__Secure-better-auth.session_token");
 
     if(!publicRoutes && !sessionCookie){
         return NextResponse.redirect(new URL("/auth/login", nextUrl));
