@@ -3,11 +3,17 @@
 import { connectDB } from "@/lib/db/DbConnect";
 import { JournalEntry } from "@/lib/models/journalEntryModel";
 import { UserStreak } from "@/lib/models/userStreakModel";
+import redis from "@/lib/redis";
 import mongoose from "mongoose";
 import { cache } from "react";
 
 export const getUserStreak = cache(async (userId: string) => {
     if (!userId) return null;
+    const cacheKey = `journal:user-streak:${userId}`;
+    const cachedStreak = await redis.get(cacheKey);
+    if (cachedStreak) {
+        return cachedStreak as { currentStreak: number; lastEntryDate: string | null };
+    }
 
     await connectDB();
 
@@ -15,10 +21,14 @@ export const getUserStreak = cache(async (userId: string) => {
         userId: new mongoose.Types.ObjectId(userId),
     })
 
-    return {
+    const formattedStreak = {
         currentStreak: userStreak?.currentStreak || 0,
         lastEntryDate: userStreak?.lastEntryDate || null,
     }
+    await redis.set(cacheKey, formattedStreak, {
+        ex: 60 * 5, // Cache for 5 minutes
+    });
+    return formattedStreak;
 })
 
 
