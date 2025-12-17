@@ -1,83 +1,113 @@
-'use client';
+import { Star } from "lucide-react";
+import React from "react";
 
-import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
-import { BookOpen, Calendar, Search } from 'lucide-react';
-import Link from 'next/link';
+import { cn } from "@/lib/utils";
 
-export function HeroSection() {
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+
+interface Hero7Props {
+  heading?: string;
+  description?: string;
+  button?: {
+    text: string;
+    url: string;
+    className?: string;
+  };
+  reviews?: {
+    count: number;
+    rating?: number;
+    avatars: {
+      src: string;
+      alt: string;
+    }[];
+  };
+  className?: string;
+}
+
+const HeroSection = ({
+  heading = "A quiet place to write, reflect deeply, and build clarity over time",
+  description = "Build a daily journaling habit without pressure or noise. Capture your thoughts, track your streaks, and reflect on your days with intention. Your writing stays private, focused, and distraction-free. Just you and your thoughts, one day at a time.",
+  button = {
+    text: "Start journaling",
+    url: "/auth/signUp",
+  },
+  reviews = {
+    count: 1000,
+    rating: 5.0,
+    avatars: [
+      {
+        src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-1.webp",
+        alt: "User avatar",
+      },
+      {
+        src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-2.webp",
+        alt: "User avatar",
+      },
+      {
+        src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-3.webp",
+        alt: "User avatar",
+      },
+      {
+        src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-4.webp",
+        alt: "User avatar",
+      },
+      {
+        src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-5.webp",
+        alt: "User avatar",
+      },
+    ],
+  },
+  className,
+}: Hero7Props) => {
   return (
-    <section className="relative w-full px-6 py-24 md:py-32 lg:py-40">
-      <div className="mx-auto max-w-6xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="mx-auto max-w-3xl text-center"
-        >
-          <h1 className="text-4xl font-medium tracking-tight text-foreground md:text-5xl lg:text-6xl">
-            A quiet place to write and reflect
+    <section className={cn("py-32", className)}>
+      <div className="container text-center">
+        <div className="mx-auto flex max-w-5xl flex-col gap-6">
+          <h1 className="text-3xl font-semibold tracking-tight lg:text-6xl text-foreground">
+            {heading}
           </h1>
-          <p className="mt-6 text-lg text-muted-foreground md:text-xl">
-            Build a daily writing habit without distractions
+          <p className="text-balance text-muted-foreground lg:text-lg">
+            {description}
           </p>
+        </div>
 
-          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button asChild size="lg" className="min-w-[140px]">
-              <Link href="/signup">Get started</Link>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="min-w-[140px]">
-              <Link href="#features">Learn more</Link>
-            </Button>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.15 }}
-          className="mt-20 grid gap-6 md:grid-cols-3"
+        <Button
+          asChild
+          size="lg"
+          className="mt-10 bg-primary text-primary-foreground hover:bg-primary/90"
         >
-          <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-              <BookOpen className="h-5 w-5 text-primary" />
-            </div>
-            <h3 className="mb-2 text-sm font-medium text-foreground">
-              Today, March 15
-            </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              Started the morning with coffee and clarity. Reflected on what
-              matters most.
-            </p>
-          </div>
+          <a href={button.url}>{button.text}</a>
+        </Button>
 
-          <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/10">
-              <Calendar className="h-5 w-5 text-secondary" />
+        <div className="mx-auto mt-10 flex w-fit flex-col items-center gap-4 sm:flex-row">
+          <span className="mx-4 inline-flex items-center -space-x-4">
+            {reviews.avatars.map((avatar, index) => (
+              <Avatar key={index} className="size-14 border border-border">
+                <AvatarImage src={avatar.src} alt={avatar.alt} />
+              </Avatar>
+            ))}
+          </span>
+          <div>
+            <div className="flex items-center gap-1">
+              {[...Array(5)].map((_, index) => (
+                <Star
+                  key={index}
+                  className="size-5 fill-yellow-400 text-yellow-400"
+                />
+              ))}
+              <span className="mr-1 font-semibold text-foreground">
+                {reviews.rating?.toFixed(1)}
+              </span>
             </div>
-            <h3 className="mb-2 text-sm font-medium text-foreground">
-              Yesterday, March 14
-            </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              Grateful for small moments. A reminder to slow down and be
-              present.
+            <p className="text-left font-medium text-muted-foreground">
+              trusted by {reviews.count}+ writers
             </p>
           </div>
-
-          <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
-              <Search className="h-5 w-5 text-accent-foreground" />
-            </div>
-            <h3 className="mb-2 text-sm font-medium text-foreground">
-              March 10
-            </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              Thoughts on growth and change. Revisiting old ideas with fresh
-              perspective.
-            </p>
-          </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
-}
+};
+
+export default HeroSection;

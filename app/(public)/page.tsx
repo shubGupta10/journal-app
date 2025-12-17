@@ -2,7 +2,7 @@
 
 import { FeaturesSection } from "@/components/landingPage/FeaturesSection";
 import { FinalCTASection } from "@/components/landingPage/FinalCTASection";
-import { HeroSection } from "@/components/landingPage/HeroSection";
+import HeroSection from "@/components/landingPage/HeroSection";
 import { TestimonialsSection } from "@/components/landingPage/TestimonialsSection";
 import { WhySection } from "@/components/landingPage/WhySection";
 
