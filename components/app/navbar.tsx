@@ -22,6 +22,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { DarkModeToggle } from "../darkModeToggle";
 
 export default function AppNavbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -86,6 +87,8 @@ export default function AppNavbar() {
                 </nav>
 
                 <div className="flex items-center gap-4">
+
+                    <DarkModeToggle />
 
                     {session?.user && (
                         <DropdownMenu>

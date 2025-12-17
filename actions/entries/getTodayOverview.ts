@@ -21,14 +21,43 @@ export const getUserStreak = cache(async (userId: string) => {
         userId: new mongoose.Types.ObjectId(userId),
     })
 
-    const formattedStreak = {
-        currentStreak: userStreak?.currentStreak || 0,
-        lastEntryDate: userStreak?.lastEntryDate || null,
+    if (!userStreak || !userStreak.lastEntryDate) {
+        const result = {
+            currentStreak: 0,
+            lastEntryDate: null,
+        };
+        await redis.set(cacheKey, result, {
+            ex: 60 * 5, // Cache for 5 minutes
+        });
+        return result;
     }
-    await redis.set(cacheKey, formattedStreak, {
+
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 86400000)
+        .toISOString()
+        .split("T")[0];
+
+    let finalStreak = userStreak.currentStreak;
+    let finalDate = userStreak.lastEntryDate;
+
+    if (userStreak.lastEntryDate !== today && userStreak.lastEntryDate !== yesterday) {
+        finalStreak = 0;
+        finalDate = "";
+
+        userStreak.currentStreak = 0;
+        userStreak.lastEntryDate = "";
+        await userStreak.save();
+    }
+
+    const result = {
+        curentStreak: finalStreak,
+        lastEntryDate: finalDate
+    };
+
+    await redis.set(cacheKey, result, {
         ex: 60 * 5, // Cache for 5 minutes
     });
-    return formattedStreak;
+    return result;
 })
 
 
