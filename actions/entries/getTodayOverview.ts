@@ -50,7 +50,7 @@ export const getUserStreak = cache(async (userId: string) => {
     }
 
     const result = {
-        curentStreak: finalStreak,
+        currentStreak: finalStreak,
         lastEntryDate: finalDate
     };
 
