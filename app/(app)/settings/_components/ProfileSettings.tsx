@@ -125,7 +125,7 @@ export default function ProfileSettings() {
                   setFormData({ ...formData, username: e.target.value })
                 }
                 autoComplete="username"
-                disabled 
+                disabled
                 className="bg-muted/40 cursor-not-allowed opacity-70"
                 title="Username changes are not supported yet"
               />
