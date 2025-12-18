@@ -1,6 +1,7 @@
 "use client";
 
-import { FeaturesSection } from "@/components/landingPage/FeaturesSection";
+import { FaqSection } from "@/components/landingPage/FaqSection";
+import  {FeaturesSection}  from "@/components/landingPage/FeaturesSection";
 import { FinalCTASection } from "@/components/landingPage/FinalCTASection";
 import HeroSection from "@/components/landingPage/HeroSection";
 import { TestimonialsSection } from "@/components/landingPage/TestimonialsSection";
@@ -13,6 +14,7 @@ export default function LandingPage() {
       <WhySection />
       <FeaturesSection />
       <TestimonialsSection />
+      <FaqSection/>
       <FinalCTASection />
     </div>
   );

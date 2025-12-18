@@ -1,36 +1,54 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
-import { useInView } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import Link from 'next/link';
 import { useRef } from 'react';
 
 export function FinalCTASection() {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const isInView = useInView(ref, { once: true, margin: '-120px' });
 
   return (
-    <section ref={ref} className="w-full px-6 py-24 md:py-32">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-        transition={{ duration: 0.4 }}
-        className="mx-auto max-w-3xl text-center"
-      >
-        <h2 className="text-3xl font-medium tracking-tight text-foreground md:text-4xl lg:text-5xl">
-          Start writing today
-        </h2>
-        <p className="mt-6 text-lg text-muted-foreground md:text-xl">
-          No commitment required. Just open the page and write.
-        </p>
+    <section ref={ref} className="py-32">
+      {/* navbar-aligned width */}
+      <div className="max-w-6xl mx-auto px-4 md:px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
+          className="
+            flex w-full flex-col gap-12
+            rounded-2xl
+            bg-muted/40
+            p-8
+            md:p-12
+            lg:flex-row lg:items-center lg:justify-between
+          "
+        >
+          {/* Text */}
+          <div className="max-w-xl">
+            <h3 className="mb-4 text-2xl font-medium tracking-tight text-foreground md:text-4xl">
+              Start writing today
+            </h3>
+            <p className="text-muted-foreground md:text-lg">
+              No pressure. No audience. Just a quiet place to think and write
+              honestly, one day at a time.
+            </p>
+          </div>
 
-        <div className="mt-10">
-          <Button asChild size="lg" className="min-w-[160px]">
-            <Link href="/signup">Get started</Link>
-          </Button>
-        </div>
-      </motion.div>
+          {/* Actions */}
+          <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+            <Button
+              asChild
+              size="lg"
+              className="min-w-[180px]"
+            >
+              <Link href="/auth/signup">Start your first entry</Link>
+            </Button>
+          </div>
+        </motion.div>
+      </div>
     </section>
   );
 }

@@ -36,37 +36,33 @@ const HeroSection = ({
     count: 1000,
     rating: 5.0,
     avatars: [
-      {
-        src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-1.webp",
-        alt: "User avatar",
-      },
-      {
-        src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-2.webp",
-        alt: "User avatar",
-      },
-      {
-        src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-3.webp",
-        alt: "User avatar",
-      },
-      {
-        src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-4.webp",
-        alt: "User avatar",
-      },
-      {
-        src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-5.webp",
-        alt: "User avatar",
-      },
+      { src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-1.webp", alt: "User avatar" },
+      { src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-2.webp", alt: "User avatar" },
+      { src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-3.webp", alt: "User avatar" },
+      { src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-4.webp", alt: "User avatar" },
+      { src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/avatar-5.webp", alt: "User avatar" },
     ],
   },
   className,
 }: Hero7Props) => {
   return (
-    <section className={cn("py-32", className)}>
-      <div className="container text-center">
+    <section className={cn("relative overflow-hidden py-32", className)}>
+      {/* Background */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(125% 125% at 50% 10%, var(--background) 40%, var(--primary) 100%)",
+        }}
+      />
+
+      {/* Content */}
+      <div className="container relative z-10 text-center">
         <div className="mx-auto flex max-w-5xl flex-col gap-6">
           <h1 className="text-3xl font-semibold tracking-tight lg:text-6xl text-foreground">
             {heading}
           </h1>
+
           <p className="text-balance text-muted-foreground lg:text-lg">
             {description}
           </p>
@@ -88,6 +84,7 @@ const HeroSection = ({
               </Avatar>
             ))}
           </span>
+
           <div>
             <div className="flex items-center gap-1">
               {[...Array(5)].map((_, index) => (
@@ -96,10 +93,11 @@ const HeroSection = ({
                   className="size-5 fill-yellow-400 text-yellow-400"
                 />
               ))}
-              <span className="mr-1 font-semibold text-foreground">
+              <span className="ml-1 font-semibold text-foreground">
                 {reviews.rating?.toFixed(1)}
               </span>
             </div>
+
             <p className="text-left font-medium text-muted-foreground">
               trusted by {reviews.count}+ writers
             </p>
@@ -109,5 +107,6 @@ const HeroSection = ({
     </section>
   );
 };
+
 
 export default HeroSection;

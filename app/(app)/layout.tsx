@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import AppNavbar from "@/components/app/navbar";
+import { Footer } from "@/components/landingPage/Footer";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
     return (
@@ -9,6 +10,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <main className="max-w-6xl mx-auto w-full px-4 py-10 space-y-10">
                 {children}
             </main>
+
+            <Footer/>
         </div>
     );
 }
