@@ -40,10 +40,7 @@ export const getRecentEntries = cache(async () => {
     return formattedEntries;
 })
 
-export const getRecentEntryById = cache(async (id: string) => {
-    const user = await currentUser();
-    if (!user) return null;
-
+export const getRecentEntryById = cache(async (id: string, userId: string) => {
     const cacheKey = `journal:entry:${id}`;
     const cachedEntry = await redis.get(cacheKey);
     if (cachedEntry) {
@@ -54,7 +51,7 @@ export const getRecentEntryById = cache(async (id: string) => {
 
     const singleEntry = await JournalEntry.findOne({
         _id: id,
-        userId: user?.id,
+        userId,
     }).lean();
 
     if (!singleEntry) return null;
