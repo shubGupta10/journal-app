@@ -49,7 +49,7 @@ const faqItems: FaqItem[] = [
 
 export function FaqSection({ className }: { className?: string }) {
   return (
-    <section className={cn('py-32', className)}>
+    <section className={cn('py-32', className)} id="faq">
       {/* width aligned with navbar */}
       <div className="max-w-6xl mx-auto px-4 md:px-6">
         {/* Centered header */}

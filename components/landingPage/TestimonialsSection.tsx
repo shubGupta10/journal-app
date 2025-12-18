@@ -51,7 +51,7 @@ export function TestimonialsSection() {
   );
 
   return (
-    <section className="py-32 bg-muted/30">
+    <section className="py-32 bg-muted/30" id="testimonials">
       {/* width aligned with navbar */}
       <div className="max-w-6xl mx-auto px-4 md:px-6">
         {/* Header + Controls */}

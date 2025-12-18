@@ -46,13 +46,13 @@ const HeroSection = ({
   className,
 }: Hero7Props) => {
   return (
-    <section className={cn("relative overflow-hidden py-32", className)}>
+    <section className={cn("relative overflow-hidden min-h-[100svh] flex items-center py-20 md:py-36", className)}>
       {/* Background */}
       <div
         className="absolute inset-0 z-0"
         style={{
           background:
-            "radial-gradient(125% 125% at 50% 10%, var(--background) 40%, var(--primary) 100%)",
+            "radial-gradient(120% 120% at 50% 0%, var(--background) 50%, var(--primary) 100%)",
         }}
       />
 
