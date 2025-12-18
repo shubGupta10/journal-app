@@ -41,7 +41,7 @@ export default function EditEntryPage() {
         if (!user) return;
 
         const fetchEntry = async () => {
-            const response = await getRecentEntryById(id as string);
+            const response = await getRecentEntryById(id as string, user.id);
             setFormData(response);
             setLoading(false);
         };
