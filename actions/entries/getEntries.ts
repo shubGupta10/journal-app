@@ -4,15 +4,43 @@ import { JournalEntry } from "@/lib/models/journalEntryModel";
 import { connectDB } from "@/lib/db/DbConnect";
 import redis from "@/lib/redis";
 
-export async function getALLEntriesByUserId(userId: string) {
-  const cacheKey = `journal:entries:${userId}`;
+type SortType = "newest" | "oldest" | "title";
+
+type FilterOptions = {
+  mood?: string;
+  tag?: string;
+};
+
+export async function getALLEntriesByUserId(
+  userId: string, 
+  sort: SortType,
+  filters: FilterOptions = {}
+) {
+  const cacheKey = `journal:entries:${userId}:${sort}:${filters.mood || "all"}:${filters.tag || "all"}`;
   const cached = await redis.get(cacheKey);
   if (cached) return cached as any[];
 
-  await connectDB();
+   await connectDB();
 
-  const entries = await JournalEntry.find({ userId })
-    .sort({ createdAt: -1 })
+  let sortQuery: any = { createdAt: -1 };
+  if (sort === "oldest") {
+    sortQuery = { createdAt: 1 };
+  }
+  if (sort === "title") {
+    sortQuery = { title: 1 };
+  }
+
+
+  let filterQuery: any = {userId};
+  if(filters.mood){
+    filterQuery.mood = filters.mood
+  }
+  if(filters.tag){
+    filterQuery.tags = { $in: [filters.tag] };
+  }
+
+  const entries = await JournalEntry.find(filterQuery)
+    .sort(sortQuery)
     .lean();
 
   const formatted = entries.map(entry => ({
