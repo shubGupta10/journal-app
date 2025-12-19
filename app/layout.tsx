@@ -3,11 +3,12 @@ import "./globals.css";
 import React from "react";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner"
+import RegisterSW from "@/components/RegisterSW";
 
 export const metadata: Metadata = {
   title: {
-    default: "Journal - Developer Daily Log",
-    template: "%s | Journal",
+    default: "DayMark - Developer Daily Log",
+    template: "%s | DayMark",
   },
   description: "A focused daily journal for software developers to track progress, debug timeline, and document learning.",
   keywords: ["Developer", "Journal", "Coding", "Productivity", "DevLog", "Engineering"],
@@ -59,6 +60,7 @@ export default function RootLayout({
          enableSystem
          disableTransitionOnChange
         >
+          <RegisterSW/>
         {children}
         <Toaster />
         </ThemeProvider>
