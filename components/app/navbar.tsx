@@ -97,7 +97,7 @@ export default function AppNavbar() {
                                     {getInitials(session.user.name)}
                                 </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-56">
+                            <DropdownMenuContent align="end" className="w-56 border-2 border-border">
                                 <DropdownMenuLabel className="font-normal">
                                     <div className="flex flex-col space-y-1">
                                         <p className="text-sm font-medium leading-none">{session.user.name}</p>

@@ -2,10 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Spinner } from "@/components/ui/spinner";
+import { DashboardSkeleton } from "./skeletons/DashboardSkeleton";
+import { EntriesSkeleton } from "./skeletons/EntriesSkeleton";
+import { TimelineSkeleton } from "./skeletons/TimelineSkeleton";
+import { SettingsSkeleton } from "./skeletons/SettingsSkeleton";
 
 export function NavigationLoader() {
   const [loading, setLoading] = useState(false);
+  const [targetPath, setTargetPath] = useState<string>("");
   const pathname = usePathname();
 
   useEffect(() => {
@@ -21,6 +25,7 @@ export function NavigationLoader() {
         const url = new URL(anchor.href);
         // Only show loader for internal navigation
         if (url.origin === window.location.origin && url.pathname !== pathname) {
+          setTargetPath(url.pathname);
           setLoading(true);
         }
       }
@@ -35,12 +40,22 @@ export function NavigationLoader() {
 
   if (!loading) return null;
 
+  const renderSkeleton = () => {
+    if (targetPath.includes("/dashboard")) {
+      return <DashboardSkeleton />;
+    } else if (targetPath.includes("/entries")) {
+      return <EntriesSkeleton />;
+    } else if (targetPath.includes("/timeline")) {
+      return <TimelineSkeleton />;
+    } else if (targetPath.includes("/settings")) {
+      return <SettingsSkeleton />;
+    }
+    return <DashboardSkeleton />;
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="flex flex-col items-center gap-4 bg-background/95 p-8 rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200">
-        <Spinner size="lg" className="text-primary" />
-        <p className="text-sm font-medium text-foreground">Loading...</p>
-      </div>
+    <div className="fixed inset-0 z-40 bg-background animate-in fade-in duration-200">
+      {renderSkeleton()}
     </div>
   );
 }

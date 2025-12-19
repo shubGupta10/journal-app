@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
+import { ChevronRight } from "lucide-react";
 
 type EntryCardProps = {
     id: string;
@@ -26,52 +27,63 @@ export function EntryCard({
     const router = useRouter();
 
     return (
-        <Card
-            onClick={() => router.push(`/entries/show/${id}`)}
-            className="group flex flex-col justify-between h-full bg-card border border-border/60 shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-200 cursor-pointer"
-        >
-            <CardHeader className="space-y-4 pb-3">
-                <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+   <Card
+  onClick={() => router.push(`/entries/show/${id}`)}
+  className="
+    group relative flex flex-col justify-between h-full
+    bg-card
+    border border-border
+    rounded-xl
+    cursor-pointer
+
+    shadow-[-8px_8px_24px_rgba(0,0,0,0.15)] dark:shadow-[-8px_8px_24px_rgba(0,0,0,0.7)]
+    transition-all duration-200 ease-out
+    hover:shadow-[-12px_12px_32px_rgba(0,0,0,0.2)] dark:hover:shadow-[-12px_12px_32px_rgba(0,0,0,0.9)]
+    hover:-translate-y-0.5
+  "
+>
+            <CardHeader className="space-y-3 pb-3">
+                <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs font-medium text-muted-foreground tracking-wide">
                         {date}
                     </p>
+
                     {mood && (
-                        <Badge className="bg-primary text-primary-foreground hover:bg-primary border-0 rounded-md px-2.5 py-0.5 text-xs font-medium shadow-sm">
+                        <Badge className="bg-primary/15 text-primary rounded-md px-2 py-0.5 text-xs font-medium">
                             {mood}
                         </Badge>
                     )}
                 </div>
 
-                <CardTitle className="text-lg font-bold text-foreground leading-tight tracking-tight">
+                <CardTitle className="text-base font-semibold text-foreground leading-snug line-clamp-2">
                     {title || "Untitled Entry"}
                 </CardTitle>
             </CardHeader>
 
-            <CardContent className="flex flex-col gap-4">
+            <CardContent className="flex flex-col gap-4 pt-0 pb-5">
                 <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
                     {preview}
                 </p>
 
-                {/* Tags Section */}
                 {tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                         {tags.map((tag) => (
                             <Badge
                                 key={tag}
-                                variant="secondary"
-                                className="bg-secondary text-secondary-foreground hover:bg-secondary/80 border-0 rounded-md px-2 py-1 text-xs font-medium"
+                                className="bg-secondary/20 text-secondary rounded-md px-2 py-0.5 text-xs font-normal"
                             >
-                                {tag}
+                                #{tag}
                             </Badge>
                         ))}
                     </div>
                 )}
 
-                {/* Visual Button - Rendered as a div to prevent logical conflict with Card onClick */}
-                <div className="mt-2 w-full rounded-md bg-primary py-2 text-center text-sm font-semibold text-primary-foreground shadow-sm group-hover:bg-primary/90 transition-colors">
-                    Open Entry
+                <div className="mt-auto flex items-center justify-end gap-1 text-primary transition-colors group-hover:text-primary/80">
+                    <span className="text-xs font-medium">Read entry</span>
+                    <ChevronRight className="w-4 h-4" />
                 </div>
             </CardContent>
         </Card>
+
     );
 }
