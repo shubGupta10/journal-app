@@ -6,6 +6,7 @@ import { User } from "@/lib/models/userModel";
 import { UserStreak } from "@/lib/models/userStreakModel";
 import { recordTimelineEvent } from "@/actions/timeline/timelineEvents";
 import mongoose from "mongoose";
+import redis from "@/lib/redis";
 
 export async function POST(req: NextRequest) {
     try {
@@ -81,6 +82,17 @@ export async function POST(req: NextRequest) {
         }
 
         await userStreak.save();
+
+        // Cache Invalidation
+        const dashboardCacheKey = `journal:dashboard:${user.id}`;
+        const streakCacheKey = `journal:user-streak:${user.id}`;
+        const timelineCacheKey = `journal:timeline:${user.id}`;
+
+        await Promise.all([
+            redis.del(dashboardCacheKey),
+            redis.del(streakCacheKey),
+            redis.del(timelineCacheKey)
+        ]);
 
         return NextResponse.json({ entry: savedEntry }, { status: 201 });
     } catch (error) {

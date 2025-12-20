@@ -12,7 +12,7 @@ type FilterOptions = {
 };
 
 export async function getALLEntriesByUserId(
-  userId: string, 
+  userId: string,
   sort: SortType,
   filters: FilterOptions = {}
 ) {
@@ -20,7 +20,7 @@ export async function getALLEntriesByUserId(
   const cached = await redis.get(cacheKey);
   if (cached) return cached as any[];
 
-   await connectDB();
+  await connectDB();
 
   let sortQuery: any = { createdAt: -1 };
   if (sort === "oldest") {
@@ -31,15 +31,26 @@ export async function getALLEntriesByUserId(
   }
 
 
-  let filterQuery: any = {userId};
-  if(filters.mood){
+  let filterQuery: any = { userId };
+  if (filters.mood) {
     filterQuery.mood = filters.mood
   }
-  if(filters.tag){
+  if (filters.tag) {
     filterQuery.tags = { $in: [filters.tag] };
   }
 
-  const entries = await JournalEntry.find(filterQuery)
+  const entries = await JournalEntry.find(
+    filterQuery,
+    {
+      title: 1,
+      content: { $substrCP: ["$content", 0, 200] },
+      tags: 1,
+      mood: 1,
+      createdAt: 1,
+      updatedAt: 1,
+      userId: 1,
+    } as any
+  )
     .sort(sortQuery)
     .lean();
 

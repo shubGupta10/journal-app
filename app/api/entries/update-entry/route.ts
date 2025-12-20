@@ -1,9 +1,10 @@
-import {NextResponse, NextRequest} from "next/server";
-import {JournalEntry} from "@/lib/models/journalEntryModel";
-import {connectDB} from "@/lib/db/DbConnect";
-import {auth} from "@/lib/auth/auth";
-import {recordTimelineEvent} from "@/actions/timeline/timelineEvents";
+import { NextResponse, NextRequest } from "next/server";
+import { JournalEntry } from "@/lib/models/journalEntryModel";
+import { connectDB } from "@/lib/db/DbConnect";
+import { auth } from "@/lib/auth/auth";
+import { recordTimelineEvent } from "@/actions/timeline/timelineEvents";
 import mongoose from "mongoose";
+import redis from "@/lib/redis";
 
 export async function PUT(req: NextRequest) {
     try {
@@ -14,11 +15,11 @@ export async function PUT(req: NextRequest) {
         })
 
         const user = session?.user;
-        if(!user){
-            return NextResponse.json({error: "Unauthorized"}, {status: 401});
+        if (!user) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const {_id, title, content, mood, tags} = await req.json() as {
+        const { _id, title, content, mood, tags } = await req.json() as {
             _id?: string;
             title?: string;
             content?: string;
@@ -26,13 +27,13 @@ export async function PUT(req: NextRequest) {
             tags?: string[];
         };
 
-        if(!_id || !title || !content || !mood) {
-            return NextResponse.json({error: "Missing required fields"}, {status: 400});
+        if (!_id || !title || !content || !mood) {
+            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        const entry = await JournalEntry.findOne({ _id, userId: new mongoose.Types.ObjectId(user.id as string)});
-        if(!entry){
-            return NextResponse.json({error: "Entry not found or unauthorized"}, {status: 404});
+        const entry = await JournalEntry.findOne({ _id, userId: new mongoose.Types.ObjectId(user.id as string) });
+        if (!entry) {
+            return NextResponse.json({ error: "Entry not found or unauthorized" }, { status: 404 });
         }
 
         entry.title = title;
@@ -55,9 +56,19 @@ export async function PUT(req: NextRequest) {
             console.error("Failed to record timeline event, but entry was updated:", timelineError);
         }
 
-        return NextResponse.json({entry: updatedEntry}, {status: 200});
-    }catch (error) {
+        // Invalidate dashboard and streak caches
+        try {
+            await redis.del(`journal:dashboard:${user.id}`);
+            await redis.del(`journal:user-streak:${user.id}`);
+            await redis.del(`journal:timeline:${user.id}`);
+            await redis.del(`journal:entry:${_id}`);
+        } catch (redisError) {
+            console.error("Failed to invalidate Redis caches:", redisError);
+        }
+
+        return NextResponse.json({ entry: updatedEntry }, { status: 200 });
+    } catch (error) {
         console.error("Error updating journal entry:", error);
-        return NextResponse.json({error: "Internal Server Error"}, {status: 500});
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getTimelineEvents } from "@/actions/timeline/timelineEvents";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function TimeLine() {
     const [timelines, setTimelines] = useState<any[]>([]);
@@ -26,9 +27,93 @@ export default function TimeLine() {
 
     if (loading) {
         return (
-            <div className="max-w-4xl mx-auto py-20 text-center">
-                <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                <p className="mt-4 text-sm font-medium text-muted-foreground animate-pulse">Loading timeline...</p>
+            <div className="max-w-5xl mx-auto px-6">
+                <div className="text-start space-y-2 mb-16">
+                     <Skeleton className="h-10 w-48" />
+                     <Skeleton className="h-6 w-96" />
+                </div>
+                
+                <div className="flex flex-col relative mt-12">
+                     <div className="absolute left-1/2 top-0 bottom-0 w-px bg-border hidden md:block -translate-x-1/2" />
+                     <div className="absolute left-5 top-0 bottom-0 w-px bg-border md:hidden" />
+
+                     {[1, 2, 3].map((i) => (
+                        <div key={i} className="relative mb-12">
+                             {/* Month Label Skeleton */}
+                             {i === 1 && (
+                                <div className="sticky top-6 z-30 flex justify-center mb-10">
+                                    <Skeleton className="h-8 w-32 rounded-full" />
+                                </div>
+                             )}
+
+                             <div className="hidden md:flex items-center justify-between w-full">
+                                  {/* Left Side */}
+                                  <div className={`w-[calc(50%-2.5rem)] flex ${i % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
+                                      {i % 2 !== 0 ? (
+                                           <div className="w-full h-40 rounded-2xl border border-border/50 p-6 space-y-4">
+                                               <div className="flex justify-between">
+                                                    <Skeleton className="h-4 w-20" />
+                                                    <Skeleton className="h-4 w-16" />
+                                               </div>
+                                               <Skeleton className="h-6 w-3/4" />
+                                                <div className="space-y-2">
+                                                    <Skeleton className="h-4 w-full" />
+                                                    <Skeleton className="h-4 w-5/6" />
+                                                </div>
+                                           </div>
+                                      ) : (
+                                          <div className="text-left pl-6 py-4 space-y-2">
+                                              <Skeleton className="h-10 w-16" />
+                                              <Skeleton className="h-4 w-24" />
+                                          </div>
+                                      )}
+                                  </div>
+
+                                  {/* Center Dot */}
+                                  <div className="relative z-10 flex items-center justify-center w-5 h-5 shrink-0">
+                                      <div className="w-4 h-4 rounded-full bg-border animate-pulse" />
+                                  </div>
+
+                                  {/* Right Side */}
+                                  <div className={`w-[calc(50%-2.5rem)] flex ${i % 2 === 0 ? 'justify-end' : 'justify-start'}`}>
+                                      {i % 2 === 0 ? (
+                                           <div className="w-full h-40 rounded-2xl border border-border/50 p-6 space-y-4">
+                                               <div className="flex justify-between">
+                                                    <Skeleton className="h-4 w-20" />
+                                                    <Skeleton className="h-4 w-16" />
+                                               </div>
+                                               <Skeleton className="h-6 w-3/4" />
+                                                <div className="space-y-2">
+                                                    <Skeleton className="h-4 w-full" />
+                                                    <Skeleton className="h-4 w-5/6" />
+                                                </div>
+                                           </div>
+                                      ) : (
+                                          <div className="text-right pr-6 py-4 flex flex-col items-end space-y-2">
+                                              <Skeleton className="h-10 w-16" />
+                                              <Skeleton className="h-4 w-24" />
+                                          </div>
+                                      )}
+                                  </div>
+                             </div>
+                             
+                             {/* Mobile Skeleton */}
+                             <div className="md:hidden flex gap-6 pl-5 relative">
+                                  <div className="absolute left-0 top-6 w-px h-full flex justify-center">
+                                      <div className="w-3 h-3 rounded-full bg-border z-10 -translate-x-[5px]" />
+                                  </div>
+                                  <div className="flex-1 h-32 rounded-xl border border-border p-5 space-y-3">
+                                      <div className="flex justify-between">
+                                          <Skeleton className="h-4 w-24" />
+                                          <Skeleton className="h-5 w-12 rounded-full" />
+                                      </div>
+                                      <Skeleton className="h-6 w-3/4" />
+                                      <Skeleton className="h-4 w-full" />
+                                  </div>
+                             </div>
+                        </div>
+                     ))}
+                </div>
             </div>
         );
     }

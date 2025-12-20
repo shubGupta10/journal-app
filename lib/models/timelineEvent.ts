@@ -48,4 +48,7 @@ const TimelineEventSchema: Schema<ITimelineEvent> = new Schema(
     }
 );
 
+// Compound index for optimal sorting of user timeline events
+TimelineEventSchema.index({ userId: 1, createdAt: -1 });
+
 export const TimelineEvent: Model<ITimelineEvent> = mongoose.models.TimelineEvent || mongoose.model<ITimelineEvent>("TimelineEvent", TimelineEventSchema);

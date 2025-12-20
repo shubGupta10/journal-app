@@ -66,9 +66,10 @@ export const getLastEntry = cache(async (userId: string) => {
 
     await connectDB();
 
-    const entry = await JournalEntry.findOne({
-        userId: new mongoose.Types.ObjectId(userId),
-    })
+    const entry = await JournalEntry.findOne(
+        { userId: new mongoose.Types.ObjectId(userId) },
+        { title: 1, updatedAt: 1 }
+    )
         .sort({ updatedAt: -1 })
         .lean();
 

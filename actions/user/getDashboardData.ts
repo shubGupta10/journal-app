@@ -22,15 +22,25 @@ export async function getDashboardData(userId: string) {
   const [streak, lastEntry, recentEntriesRaw] = await Promise.all([
     getUserStreak(userId),
     getLastEntry(userId),
-    JournalEntry.find({ userId })
+    JournalEntry.find(
+      { userId },
+      {
+        title: 1,
+        content: { $substrCP: ["$content", 0, 200] }, // Fetch only first 200 chars
+        tags: 1,
+        mood: 1,
+        createdAt: 1,
+        updatedAt: 1
+      } as any
+    )
       .sort({ createdAt: -1 })
       .limit(6)
       .lean(),
   ]);
 
-  const recentEntries = recentEntriesRaw.map(entry => ({
+  const recentEntries = recentEntriesRaw.map((entry: any) => ({
     _id: entry._id.toString(),
-    userId: entry.userId.toString(),
+    userId: entry.userId ? entry.userId.toString() : userId, // userId might not be projected if we are strict, but it's fine
     title: entry.title,
     content: entry.content,
     tags: entry.tags,

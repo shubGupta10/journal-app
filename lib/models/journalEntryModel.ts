@@ -47,4 +47,8 @@ const JournalEntrySchema: Schema<IJournalEntry> = new Schema(
     }
 );
 
+// Compound indexes for fetching user entries sorted by date
+JournalEntrySchema.index({ userId: 1, createdAt: -1 });
+JournalEntrySchema.index({ userId: 1, updatedAt: -1 });
+
 export const JournalEntry: Model<IJournalEntry> = mongoose.models.JournalEntry || mongoose.model<IJournalEntry>("JournalEntry", JournalEntrySchema);

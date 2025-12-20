@@ -1,10 +1,11 @@
 "use server"
 
-import {connectDB} from "@/lib/db/DbConnect";
-import {TimelineEvent} from "@/lib/models/timelineEvent";
-import {cache} from "react";
-import {auth} from "@/lib/auth/auth";
+import { connectDB } from "@/lib/db/DbConnect";
+import { TimelineEvent } from "@/lib/models/timelineEvent";
+import { cache } from "react";
+import { auth } from "@/lib/auth/auth";
 import mongoose from "mongoose";
+import redis from "@/lib/redis";
 
 
 type TimelineGroup = {
@@ -28,10 +29,10 @@ type TimelineEventInput = {
     snapshot?: string;
 };
 
-export async function recordTimelineEvent({userId, type, entryId, title, snapshot,}: TimelineEventInput) {
+export async function recordTimelineEvent({ userId, type, entryId, title, snapshot, }: TimelineEventInput) {
     try {
         if (!userId || !type || !entryId) {
-            console.log("Timeline event skipped - missing required fields:", {userId, type, entryId});
+            console.log("Timeline event skipped - missing required fields:", { userId, type, entryId });
             return;
         }
 
@@ -65,23 +66,40 @@ export const getTimelineEvents = cache(async (): Promise<TimelineGroup[]> => {
 
         const user = session?.user;
 
-        if(!user) {
+        if (!user) {
             console.log("No user found, returning empty array");
             return [];
         }
 
-        const events = await TimelineEvent.find({ userId: user.id })
+        const cacheKey = `journal:timeline:${user.id}`;
+        const cached = await redis.get(cacheKey);
+
+        if (cached) {
+            return cached as TimelineGroup[];
+        }
+
+        const events = await TimelineEvent.find(
+            { userId: user.id },
+            {
+                _id: 1,
+                type: 1,
+                entryId: 1,
+                title: 1,
+                snapshot: 1,
+                createdAt: 1,
+            }
+        )
             .sort({ createdAt: -1 })
             .lean();
 
         const groupedByDate: Record<string, any> = {};
 
-        for( const event of events){
+        for (const event of events) {
             const extractedDate = new Date(event.createdAt)
                 .toISOString()
                 .split("T")[0];
 
-            if(!groupedByDate[extractedDate]){
+            if (!groupedByDate[extractedDate]) {
                 groupedByDate[extractedDate] = {
                     date: extractedDate,
 
@@ -109,7 +127,7 @@ export const getTimelineEvents = cache(async (): Promise<TimelineGroup[]> => {
         }
 
         //assign position
-        for(const extractedDate in groupedByDate){
+        for (const extractedDate in groupedByDate) {
             groupedByDate[extractedDate].events =
                 groupedByDate[extractedDate].events.map((event: any, index: number) => ({
                     ...event,
@@ -120,9 +138,12 @@ export const getTimelineEvents = cache(async (): Promise<TimelineGroup[]> => {
 
         const result = Object.values(groupedByDate);
         console.log(`Returning ${result.length} grouped dates`);
+
+        await redis.set(cacheKey, result, { ex: 300 });
+
         return result;
     } catch (error) {
-        console.error("❌ Error fetching timeline events:", error);
+        console.error("Error fetching timeline events:", error);
         return [];
     }
 })
