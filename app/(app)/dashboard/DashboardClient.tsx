@@ -5,6 +5,7 @@ import { EntryCard } from "@/components/app/EntryCard";
 import { DailyQuote } from "@/components/app/DailyQuote";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getStreakReflection } from "@/lib/utils/streakReflection";
 
 export default function DashboardClient({ user, data }: any) {
   const router = useRouter();
@@ -38,9 +39,7 @@ export default function DashboardClient({ user, data }: any) {
               <span className="ml-3 text-lg text-muted-foreground">days</span>
             </div>
             <p className="mt-4 text-sm text-muted-foreground font-medium">
-              {streak?.currentStreak
-                ? "You're building momentum. Keep it up!"
-                : "Start your streak today by writing an entry."}
+              {getStreakReflection(streak?.currentStreak ?? 0)}
             </p>
           </div>
 
