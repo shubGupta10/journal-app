@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
         }
 
         const { title, content, mood, tags } = await req.json() as IJournalEntry;
-        if (!title || !content || !mood) {
+        if (!title || !content) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 

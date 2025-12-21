@@ -34,12 +34,14 @@ const JournalEntrySchema: Schema<IJournalEntry> = new Schema(
         tags: {
             type: [String],
             default: [],
+            required: false,
         },
 
         mood: {
             type: String,
             trim: true,
             default: "neutral",
+            required: false,
         },
     },
     {
