@@ -1,8 +1,11 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 type EntryCardProps = {
     id: string;
@@ -27,6 +30,11 @@ export function EntryCard({
     const router = useRouter();
 
     return (
+   <motion.div
+     whileHover={{ scale: 1.01 }}
+     whileTap={{ scale: 0.99 }}
+     transition={{ type: "spring", stiffness: 400, damping: 17 }}
+   >
    <Card
   onClick={() => router.push(`/entries/show/${id}`)}
   className="
@@ -84,6 +92,7 @@ export function EntryCard({
                 </div>
             </CardContent>
         </Card>
+   </motion.div>
 
     );
 }

@@ -1,5 +1,9 @@
-import { Star } from "lucide-react";
-import React from "react";
+"use client";
+
+import { Star, Loader2 } from "lucide-react";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 
@@ -45,6 +49,9 @@ const HeroSection = ({
   },
   className,
 }: Hero7Props) => {
+  const [isNavigating, setIsNavigating] = useState(false);
+  const router = useRouter();
+
   return (
     <section className={cn("relative overflow-hidden min-h-[100svh] flex items-center py-20 md:py-36", className)}>
       {/* Background */}
@@ -68,13 +75,26 @@ const HeroSection = ({
           </p>
         </div>
 
-        <Button
-          asChild
-          size="lg"
-          className="mt-10 bg-primary text-primary-foreground hover:bg-primary/90"
+        <motion.button
+          onClick={() => {
+            setIsNavigating(true);
+            router.push(button.url);
+          }}
+          disabled={isNavigating}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+          className="mt-10 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-6"
         >
-          <a href={button.url}>{button.text}</a>
-        </Button>
+          {isNavigating ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading...
+            </>
+          ) : (
+            button.text
+          )}
+        </motion.button>
 
         <div className="mx-auto mt-10 flex w-fit flex-col items-center gap-4 sm:flex-row">
           <span className="mx-4 inline-flex items-center -space-x-4">

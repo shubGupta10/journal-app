@@ -3,11 +3,15 @@
 import { Button } from '@/components/ui/button';
 import { motion, useInView } from 'framer-motion';
 import Link from 'next/link';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 
 export function FinalCTASection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-120px' });
+  const [isNavigating, setIsNavigating] = useState(false);
+  const router = useRouter();
 
   return (
     <section ref={ref} className="py-32">
@@ -39,13 +43,26 @@ export function FinalCTASection() {
 
           {/* Actions */}
           <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
-            <Button
-              asChild
-              size="lg"
-              className="min-w-[180px]"
+            <motion.button
+              onClick={() => {
+                setIsNavigating(true);
+                router.push("/auth/signup");
+              }}
+              disabled={isNavigating}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              className="min-w-[180px] inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-6"
             >
-              <Link href="/auth/signup">Start your first entry</Link>
-            </Button>
+              {isNavigating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                "Start your first entry"
+              )}
+            </motion.button>
           </div>
         </motion.div>
       </div>

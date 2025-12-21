@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import {useRouter} from "next/navigation";
 import {Button} from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 
 export default function DeleteEntryButton ({id}: {id: any}){
@@ -46,6 +47,11 @@ export default function DeleteEntryButton ({id}: {id: any}){
 
     return (
         <AlertDialog>
+            <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            >
             <AlertDialogTrigger asChild>
                 <Button
                     variant="outline"
@@ -54,6 +60,7 @@ export default function DeleteEntryButton ({id}: {id: any}){
                     Delete
                 </Button>
             </AlertDialogTrigger>
+            </motion.div>
 
             <AlertDialogContent>
                 <AlertDialogHeader>
