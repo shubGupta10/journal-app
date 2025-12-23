@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import webpush, { PushSubscription } from "web-push";
 import redis from "@/lib/redis";
+import { sendEmail } from "@/lib/email/sendEmail";
+import { User } from "@/lib/models/userModel";
+import { dayMarkDailyReminderTemplate } from "@/lib/email/template";
+import { getNextRunTimestamp } from "@/lib/notifications/schedule";
 
 type UserPrefs = {
     enabled: boolean;
@@ -38,10 +42,8 @@ export async function POST(req: NextRequest) {
             userId
         );
 
-        const prefs = await redis.hget<UserPrefs>(
-            "user_prefs",
-            userId
-        );
+        const prefsRaw = await redis.hget<string>("user_prefs", userId);
+        const prefs: UserPrefs | null = prefsRaw ? JSON.parse(prefsRaw) : null;
 
         if (!subscription || !prefs?.enabled) {
             await redis.zrem("scheduled_notifications", userId);
@@ -57,6 +59,8 @@ export async function POST(req: NextRequest) {
                     url: "/dashboard",
                 })
             );
+
+            
         } catch (err) {
             const error = err as WebPushSendError;
 
@@ -69,7 +73,20 @@ export async function POST(req: NextRequest) {
             throw error;
         }
 
-        const nextRun = now + 24 * 60 * 60 * 1000;
+        try {
+            const fetchUser = await User.findById(userId).select("email name").lean();
+
+            await sendEmail({
+                from: `DayMark <${process.env.EMAIL_USER}>`,
+                to: fetchUser?.email as string,
+                subject: "Your Daily Journal Reminder",
+                html: dayMarkDailyReminderTemplate(fetchUser?.name || undefined),
+            })
+        } catch (error) {
+            console.error("Failed to send email reminder to userId:", userId, error);
+        }
+
+        const nextRun = getNextRunTimestamp("20:00");
         await redis.zadd("scheduled_notifications", {
             score: nextRun,
             member: userId,
