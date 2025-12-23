@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
             });
 
             // Schedule notification for tomorrow at the same time
-            const nextRun = getNextRunTimestamp("20:00")
+           const nextRun = getNextRunTimestamp("21:00");
             await redis.zadd("scheduled_notifications", {
                 score: nextRun,
                 member: userId,

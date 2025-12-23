@@ -2,13 +2,20 @@ export function getNextRunTimestamp(time: string): number {
     const [hours, minutes] = time.split(":").map(Number);
 
     const now = new Date();
-    const next = new Date();
 
-    next.setHours(hours, minutes, 0, 0);
+    const nextRun = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        hours,
+        minutes,
+        0,
+        0
+    );
 
-    if (now.getTime() >= next.getTime()) {
-        next.setDate(next.getDate() + 1);
+    if (now >= nextRun) {
+        nextRun.setDate(nextRun.getDate() + 1);
     }
 
-    return next.getTime();
+    return nextRun.getTime();
 }

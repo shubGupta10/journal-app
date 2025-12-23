@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
             console.error("Failed to send email reminder to userId:", userId, error);
         }
 
-        const nextRun = getNextRunTimestamp("20:00");
+        const nextRun = getNextRunTimestamp("21:00");
         await redis.zadd("scheduled_notifications", {
             score: nextRun,
             member: userId,
