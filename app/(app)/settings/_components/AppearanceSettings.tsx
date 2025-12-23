@@ -21,7 +21,8 @@ export default function AppearanceSettings() {
         const res = await fetch("/api/user/notifications-preferences");
         if (res.ok) {
           const data = await res.json();
-          setNotificationsEnabled(data.enabled || false);
+          console.log("Loaded notification preferences:", data);
+          setNotificationsEnabled(data.enabled === true);
         }
       } catch (error) {
         console.error("Failed to load notification preferences:", error);

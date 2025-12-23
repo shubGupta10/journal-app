@@ -30,10 +30,14 @@ export async function POST(req: NextRequest) {
 
         const userId = session.user.id;
 
+        console.log("Saving notification preference:", { userId, enabled });
+
         // Save user preference
         await redis.hset("user_prefs", {
             [userId]: JSON.stringify({ enabled }),
         });
+
+        console.log("Saved to Redis successfully");
 
         if (enabled && subscription) {
             // Save subscription
@@ -74,12 +78,27 @@ export async function GET() {
 
         const userId = session.user.id;
 
-        const prefsData = await redis.hget("user_prefs", userId);
-        const prefs = prefsData
-            ? JSON.parse(prefsData as string)
-            : { enabled: false };
+        console.log("Fetching preferences for userId:", userId);
 
-        return NextResponse.json({ enabled: prefs.enabled });
+        const prefsData = await redis.hget("user_prefs", userId);
+        
+        console.log("User pref raw data:", prefsData);
+        
+        let prefs = { enabled: false };
+        
+        if (prefsData) {
+            // Handle both string and object responses from Redis
+            if (typeof prefsData === 'string') {
+                prefs = JSON.parse(prefsData);
+            } else {
+                prefs = prefsData as { enabled: boolean };
+            }
+        }
+        
+        console.log("Parsed prefs:", prefs);
+        
+
+        return NextResponse.json({ enabled: prefs.enabled || false });
     } catch (error) {
         console.error("Error fetching notification preferences:", error);
         return NextResponse.json(
