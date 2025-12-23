@@ -34,3 +34,45 @@ self.addEventListener("fetch", (event) => {
       })
   );
 });
+
+
+self.addEventListener('push', (event) => {
+    if(!event.data) return;
+
+    const data = event.data.json();
+    const title = data.title || 'New Notification';
+    const options = {
+        body: data.body || '',
+        icon: data.icon || '/icons/icon-192x192.png',
+        badge: data.badge || '/icons/icon-96x96.png',
+        data: {
+            url: data.url || '/'
+        }
+    }
+
+    event.waitUntil(self.registration.showNotification(title, options));
+})
+
+
+self.addEventListener('notificationclick', (event) => {
+    const notification = event.notification;
+    const urlToOpen = notification.data.url;
+
+    notification.close();
+
+    // Handle the click: Focus existing tab or open a new one
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+            // Check if there is already a window/tab open with the target URL
+            for (let client of windowClients) {
+                if (client.url === urlToOpen && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            // If no tab is open, open a new one
+            if (clients.openWindow) {
+                return clients.openWindow(urlToOpen);
+            }
+        })
+    );
+});
