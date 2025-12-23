@@ -70,9 +70,10 @@ export default function EntryShowPage({ entry }: { entry: Entry }) {
         </CardHeader>
 
         <CardContent className="px-8 py-10 bg-background">
-          <p className="whitespace-pre-wrap text-base md:text-lg leading-8 text-foreground/90">
-            {entry.content}
-          </p>
+          <div 
+            className="prose prose-sm dark:prose-invert max-w-none text-base md:text-lg leading-8"
+            dangerouslySetInnerHTML={{ __html: entry.content }}
+          />
         </CardContent>
 
         <CardFooter className="border-t border-border/40 bg-muted/10 px-8 py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-muted-foreground">

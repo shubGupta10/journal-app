@@ -25,8 +25,13 @@ export function EntryCard({
     createdAt,
 }: EntryCardProps) {
     const date = format(new Date(createdAt), "dd MMM yyyy");
+    const stripHtml = (html: string) => {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || '';
+    };
+    const textContent = stripHtml(content);
     const preview =
-        content.length > 120 ? content.slice(0, 120) + "…" : content;
+        textContent.length > 120 ? textContent.slice(0, 120) + "…" : textContent;
     const router = useRouter();
 
     return (

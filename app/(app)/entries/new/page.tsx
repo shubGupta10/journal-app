@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, KeyboardEvent, FormEvent } from "react";
+import { useState, KeyboardEvent, FormEvent, useRef } from "react";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { TiptapEditor, TiptapEditorRef } from "@/components/app/TiptapEditor";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,7 @@ import TEMPLATES from "@/styles/templates";
 
 export default function AddNewEntry() {
     const router = useRouter();
+    const editorRef = useRef<TiptapEditorRef>(null);
     const [formData, setFormData] = useState<{
         title: string;
         content: string;
@@ -57,7 +58,6 @@ export default function AddNewEntry() {
             });
 
             const data = await response.json();
-            console.log(data);
 
             setFormData({
                 title: "",
@@ -74,17 +74,15 @@ export default function AddNewEntry() {
     };
 
     const insertTemplate = (text: string) => {
-        setFormData((prev) => ({
-            ...prev,
-            content: prev.content ? `${prev.content}\n\n${text}` : text,
-        }))
+        editorRef.current?.insertContent(text);
     }
 
     const clearContent = () => {
+        editorRef.current?.clearContent();
         setFormData((prev) => ({
             ...prev,
             content: "",
-        }))
+        }));
     }
 
     const handleCustomTag = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -190,7 +188,7 @@ export default function AddNewEntry() {
                                     <Input
                                         placeholder="Add custom tag + Enter"
                                         onKeyDown={handleCustomTag}
-                                        className="bg-muted/30 border-input text-sm h-10 focus-visible:ring-primary transition-all"
+                                        className="bg-muted/30  text-sm h-10 focus-visible:ring-primary transition-all"
                                     />
                                 </div>
 
@@ -212,7 +210,7 @@ export default function AddNewEntry() {
                     </Card>
                 </div>
 
-                <Card className="lg:col-span-8 border border-border shadow-md flex flex-col min-h-[600px] overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                <Card className="lg:col-span-8 border border-border shadow-md flex flex-col min-h-[600px] overflow-hidden transition-all">
                     <CardHeader className="pb-0 pt-4 px-6 border-b border-border/40 bg-card">
                         <div className="flex items-center justify-between">
                             <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
@@ -280,12 +278,13 @@ export default function AddNewEntry() {
                         </div>
                     </CardHeader>
 
-                    <CardContent className="flex-1 p-0 flex flex-col bg-background">
-                        <Textarea
-                            placeholder="What did you build, learn, or fix today?"
+                    <CardContent className="flex-1 p-4 flex flex-col bg-background">
+                        <TiptapEditor
+                            ref={editorRef}
                             value={formData.content}
-                            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                            className="flex-1 w-full border-0 focus-visible:ring-0 resize-none p-8 text-base leading-7 text-foreground placeholder:text-muted-foreground/50"
+                            onChange={(content) => setFormData({ ...formData, content })}
+                            placeholder="What did you build, learn, or fix today?"
+                            className="flex-1 border-2 border-red-500"
                         />
                     </CardContent>
 

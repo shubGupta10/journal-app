@@ -2,11 +2,11 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
-import { useEffect, useState, KeyboardEvent, FormEvent } from "react";
+import { useEffect, useState, KeyboardEvent, FormEvent, useRef } from "react";
 import { getRecentEntryById } from "@/actions/entries/getRecentEntries";
 
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { TiptapEditor, TiptapEditorRef } from "@/components/app/TiptapEditor";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +26,7 @@ interface Entry {
 export default function EditEntryPage() {
     const { id } = useParams();
     const router = useRouter();
+    const editorRef = useRef<TiptapEditorRef>(null);
 
     const session = authClient.useSession();
     const user = session?.data?.user;
@@ -240,12 +241,13 @@ export default function EditEntryPage() {
                             </span>
                         </div>
                     </CardHeader>
-                    <CardContent className="flex-1 p-0 flex flex-col bg-background">
-                        <Textarea
+                    <CardContent className="flex-1 p-4 flex flex-col bg-background">
+                        <TiptapEditor
+                            ref={editorRef}
                             value={formData.content}
-                            placeholder="What did you build, learn or fix today?"
-                            className="flex-1 w-full border-0 focus-visible:ring-0 resize-none p-8 text-base leading-7 text-foreground placeholder:text-muted-foreground/50"
-                            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                            onChange={(content) => setFormData({ ...formData, content })}
+                            placeholder="What did you build, learn, or fix today?"
+                            className="flex-1"
                         />
                     </CardContent>
 
