@@ -42,8 +42,16 @@ export async function POST(req: NextRequest) {
             userId
         );
 
-        const prefsRaw = await redis.hget<string>("user_prefs", userId);
-        const prefs: UserPrefs | null = prefsRaw ? JSON.parse(prefsRaw) : null;
+        const prefsRaw = await redis.hget("user_prefs", userId);
+        let prefs: UserPrefs | null = null;
+        
+        if (prefsRaw) {
+            if (typeof prefsRaw === "string") {
+                prefs = JSON.parse(prefsRaw);
+            } else if (typeof prefsRaw === "object") {
+                prefs = prefsRaw as UserPrefs;
+            }
+        }
 
         if (!subscription || !prefs?.enabled) {
             await redis.zrem("scheduled_notifications", userId);
@@ -85,11 +93,16 @@ export async function POST(req: NextRequest) {
                 userName = fetchUser.name;
             } else {
                 // Fallback to Redis stored email
-                const userEmailData = await redis.hget<string>("user_emails", userId);
+                const userEmailData = await redis.hget("user_emails", userId);
                 if (userEmailData) {
-                    const parsed = JSON.parse(userEmailData);
-                    userEmail = parsed.email;
-                    userName = parsed.name;
+                    if (typeof userEmailData === "string") {
+                        const parsed = JSON.parse(userEmailData);
+                        userEmail = parsed.email;
+                        userName = parsed.name;
+                    } else if (typeof userEmailData === "object" && userEmailData !== null) {
+                        userEmail = (userEmailData as any).email;
+                        userName = (userEmailData as any).name;
+                    }
                 }
             }
 
