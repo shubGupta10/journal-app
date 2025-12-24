@@ -1,6 +1,11 @@
+import { Suspense } from "react";
 import { currentUser } from "@/lib/auth/currentUser";
 import { getDashboardData } from "@/actions/user/getDashboardData";
 import DashboardClient from "./DashboardClient";
+import { DashboardSkeleton } from "@/components/app/skeletons/DashboardSkeleton";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 60; // Revalidate every 60 seconds
 
 export default async function DashboardPage() {
   const user = await currentUser();
@@ -8,5 +13,9 @@ export default async function DashboardPage() {
 
   const data = await getDashboardData(user.id);
 
-  return <DashboardClient user={user} data={data} />;
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <DashboardClient user={user} data={data} />
+    </Suspense>
+  );
 }

@@ -12,16 +12,28 @@ if (!MONGODB_URI) {
 let isConnected = false;
 
 export const connectDB = async () => {
-    if (isConnected) return;
+    if (isConnected && mongoose.connection.readyState === 1) return;
 
     if (mongoose.connection.readyState >= 1) {
         isConnected = true;
         return;
     }
 
-    await mongoose.connect(MONGODB_URI, {
-        dbName: "journal-app",
-    });
+    try {
+        await mongoose.connect(MONGODB_URI, {
+            dbName: "journal-app",
+            maxPoolSize: 10,
+            minPoolSize: 2,
+            socketTimeoutMS: 45000,
+            serverSelectionTimeoutMS: 5000,
+            family: 4,
+        });
 
-    isConnected = true;
+        isConnected = true;
+        console.log("MongoDB connected successfully");
+    } catch (error) {
+        console.error("MongoDB connection error:", error);
+        isConnected = false;
+        throw error;
+    }
 };

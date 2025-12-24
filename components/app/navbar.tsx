@@ -27,7 +27,7 @@ import { DarkModeToggle } from "../darkModeToggle";
 export default function AppNavbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    const { data: session } = authClient.useSession();
+    const { data: session, isPending } = authClient.useSession();
     const pathname = usePathname();
     const router = useRouter();
 
@@ -90,7 +90,9 @@ export default function AppNavbar() {
 
                     <DarkModeToggle />
 
-                    {session?.user && (
+                    {isPending ? (
+                        <div className="h-9 w-9 rounded-full bg-muted animate-pulse" />
+                    ) : session?.user ? (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <button className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground ring-offset-background transition-colors hover:bg-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
@@ -122,7 +124,7 @@ export default function AppNavbar() {
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                    )}
+                    ) : null}
 
                     <button
                         className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring md:hidden"

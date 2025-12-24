@@ -4,17 +4,22 @@ import { getUserStreak, getLastEntry } from "@/actions/entries/getTodayOverview"
 import { JournalEntry } from "@/lib/models/journalEntryModel";
 import { connectDB } from "@/lib/db/DbConnect";
 import redis from "@/lib/redis";
+import { cache } from "react";
 
-export async function getDashboardData(userId: string) {
+export const getDashboardData = cache(async (userId: string) => {
   const cacheKey = `journal:dashboard:${userId}`;
-  const cached = await redis.get(cacheKey);
-
-  if (cached) {
-    return cached as {
-      streak: { currentStreak: number; lastEntryDate: string | null };
-      lastEntry: { title: string; updatedAt: string } | null;
-      recentEntries: any[];
-    };
+  
+  try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return cached as {
+        streak: { currentStreak: number; lastEntryDate: string | null };
+        lastEntry: { title: string; updatedAt: string } | null;
+        recentEntries: any[];
+      };
+    }
+  } catch (redisError) {
+    console.warn("Redis cache read failed, continuing without cache:", redisError);
   }
 
   await connectDB();
@@ -55,7 +60,11 @@ export async function getDashboardData(userId: string) {
     recentEntries,
   };
 
-  await redis.set(cacheKey, data, { ex: 300 });
+  try {
+    await redis.set(cacheKey, data, { ex: 300 });
+  } catch (redisError) {
+    console.warn("Redis cache write failed:", redisError);
+  }
 
   return data;
-}
+});
