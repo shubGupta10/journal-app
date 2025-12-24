@@ -37,6 +37,14 @@ export async function POST(req: NextRequest) {
             [userId]: JSON.stringify({ enabled }),
         });
 
+        // Save user email and name for notifications
+        await redis.hset("user_emails", {
+            [userId]: JSON.stringify({
+                email: session.user.email,
+                name: session.user.name,
+            }),
+        });
+
         console.log("Saved to Redis successfully");
 
         if (enabled && subscription) {

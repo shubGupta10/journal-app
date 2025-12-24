@@ -74,14 +74,35 @@ export async function POST(req: NextRequest) {
         }
 
         try {
-            const fetchUser = await User.findById(userId).select("email name").lean();
+            let userEmail: string | undefined;
+            let userName: string | undefined;
 
-            await sendEmail({
-                from: `DayMark <${process.env.EMAIL_USER}>`,
-                to: fetchUser?.email as string,
-                subject: "Your Daily Journal Reminder",
-                html: dayMarkDailyReminderTemplate(fetchUser?.name || undefined),
-            })
+            // Try to get from MongoDB first
+            const fetchUser = await User.findById(userId).select("email name").lean();
+            
+            if (fetchUser?.email) {
+                userEmail = fetchUser.email;
+                userName = fetchUser.name;
+            } else {
+                // Fallback to Redis stored email
+                const userEmailData = await redis.hget<string>("user_emails", userId);
+                if (userEmailData) {
+                    const parsed = JSON.parse(userEmailData);
+                    userEmail = parsed.email;
+                    userName = parsed.name;
+                }
+            }
+
+            if (userEmail) {
+                await sendEmail({
+                    from: `DayMark <${process.env.EMAIL_USER}>`,
+                    to: userEmail,
+                    subject: "Your Daily Journal Reminder",
+                    html: dayMarkDailyReminderTemplate(userName || undefined),
+                });
+            } else {
+                console.warn(`No email found for userId ${userId} - skipping email`);
+            }
         } catch (error) {
             console.error("Failed to send email reminder to userId:", userId, error);
         }
