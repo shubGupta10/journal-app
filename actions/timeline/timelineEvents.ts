@@ -126,14 +126,18 @@ export const getTimelineEvents = cache(async (): Promise<TimelineGroup[]> => {
             });
         }
 
-        //assign position
+        //assign position globally across all events
+        let globalIndex = 0;
         for (const extractedDate in groupedByDate) {
             groupedByDate[extractedDate].events =
-                groupedByDate[extractedDate].events.map((event: any, index: number) => ({
-                    ...event,
-                    // Even index → left, odd index → right
-                    position: index % 2 === 0 ? "left" : "right",
-                }));
+                groupedByDate[extractedDate].events.map((event: any) => {
+                    const position = globalIndex % 2 === 0 ? "left" : "right";
+                    globalIndex++;
+                    return {
+                        ...event,
+                        position,
+                    };
+                });
         }
 
         const result = Object.values(groupedByDate);
