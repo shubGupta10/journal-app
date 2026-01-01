@@ -14,6 +14,7 @@
 
 ## About the App
 The Journal App is a personal digital journaling platform designed to help users record their thoughts, experiences, and reflections in an organized and accessible manner. It provides a private space for introspection, allowing users to track their personal growth, manage their memories, and express themselves freely. Built with modern web technologies, it offers a smooth and intuitive experience for maintaining a daily journal.
+hwdwhdhwudwdwudhwdwudwudwudwhdwhdwhdwhdwhdwwhdwhdwwdwhdwdwidhwdhwdhwidwhdwhwhwhhdh
 
 ## Features
 - **Create & Manage Entries:** Easily add new journal entries, complete with date, title, and content.
