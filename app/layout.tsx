@@ -1,69 +1,35 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import React from "react";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/sonner"
-import RegisterSW from "@/components/RegisterSW";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css'; // Assuming global styles are imported here
+
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: {
-    default: "DayMark - Developer Daily Log",
-    template: "%s | DayMark",
-  },
-  description: "A focused daily journal for software developers to track progress, debug timeline, and document learning.",
-  keywords: ["Developer", "Journal", "Coding", "Productivity", "DevLog", "Engineering"],
-  authors: [{ name: "Shubham Gupta" }], 
-  creator: "Shubham Gupta",
-  
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: "https://your-domain.com",
-    title: "Journal - Developer Daily Log",
-    description: "Track your coding journey, debugs, and daily wins.",
-    siteName: "Journal",
-    images: [
-      {
-        url: "/og-image.png", 
-        width: 1200,
-        height: 630,
-        alt: "Journal App Preview",
-      },
-    ],
-  },
-  
-  twitter: {
-    card: "summary_large_image",
-    title: "Journal - Developer Daily Log",
-    description: "Track your coding journey, debugs, and daily wins.",
-    creator: "@yourhandle",
-  },
-
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
-  },
+  title: 'DayMark - The Shubham App', // Updated app title for browser tab
+  description: 'A journaling and productivity application by Shubham.', // Update description if desired
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body>
-        <ThemeProvider
-         attribute='class'
-         defaultTheme="system"
-         enableSystem
-         disableTransitionOnChange
-        >
-          <RegisterSW/>
+    <html lang="en">
+      <body className={inter.className}>
+        {/* 
+          If you have a global Header/Navbar component rendered here, 
+          ensure it displays the new app name. 
+          Example:
+        */}
+        {/* <Header appName="DayMark - The Shubham App" /> */}
         {children}
-        <Toaster />
-        </ThemeProvider>
+        {/* 
+          If you have a global Footer component rendered here, 
+          ensure it displays the new app name. 
+          Example:
+        */}
+        {/* <Footer appName="DayMark - The Shubham App" /> */}
       </body>
     </html>
   );
